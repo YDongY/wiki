@@ -2,10 +2,17 @@
 title: Dockerfile
 description: 
 published: true
+<<<<<<< HEAD
 date: 2021-02-21T13:36:25.828Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T09:37:48.590Z
+=======
+date: 2021-02-21T14:36:40.128Z
+tags: 
+editor: undefined
+dateCreated: 2021-02-21T14:36:37.478Z
+>>>>>>> docs: add all untracked content
 ---
 
 Dockfile 是用来构建 Docker 镜像的构建文件，是由一系列命令和参数构成的脚本

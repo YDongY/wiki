@@ -2,10 +2,17 @@
 title: Ubuntu 启动错误解决
 description: 
 published: true
+<<<<<<< HEAD
 date: 2021-02-21T13:34:39.072Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T08:35:35.716Z
+=======
+date: 2021-02-21T14:36:50.464Z
+tags: 
+editor: undefined
+dateCreated: 2021-02-21T14:36:48.047Z
+>>>>>>> docs: add all untracked content
 ---
 
 # Ubuntu 启动错误

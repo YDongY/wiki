@@ -2,10 +2,17 @@
 title: Nginx Command
 description: 
 published: true
+<<<<<<< HEAD
 date: 2021-02-21T13:36:10.768Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T09:25:55.863Z
+=======
+date: 2021-02-21T14:40:21.880Z
+tags: 
+editor: undefined
+dateCreated: 2021-02-21T14:40:19.308Z
+>>>>>>> docs: add all untracked content
 ---
 
 # Nginx 命令行

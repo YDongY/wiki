@@ -2,10 +2,17 @@
 title: Ubuntu 20.04 Docker 部署 Wiki.js
 description: 
 published: true
+<<<<<<< HEAD
 date: 2021-02-21T13:34:24.871Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T08:35:16.336Z
+=======
+date: 2021-02-21T14:37:30.170Z
+tags: 
+editor: undefined
+dateCreated: 2021-02-21T14:37:27.635Z
+>>>>>>> docs: add all untracked content
 ---
 
 # Docker-Compose 安装 Wiki.js
