@@ -2,19 +2,16 @@
 title: requests
 description: 
 published: true
-date: 2021-02-22T10:38:32.413Z
+date: 2021-02-22T10:47:50.808Z
 tags: python, requests, 库
 editor: markdown
 dateCreated: 2021-02-22T10:38:32.413Z
 ---
 
-# requests
-
 > [官方文档](https://requests.readthedocs.io/en/master/)
 {.is-info}
 
-
-## GET 请求
+# GET 请求
 
 ```python
 import requests
@@ -64,7 +61,7 @@ r = requests.get("http://httpbin.org/get", headers=headers)
 
 ```
 
-## POST 请求
+# POST 请求
 
 ```python
 
@@ -99,7 +96,15 @@ cookies = dict(cookies_are='working')
 r = requests.get('https://httpbin.org/cookies', cookies=cookies)
 ```
 
+# Session
 
+Session 对象会在下一次请求自动携带 Cookie，而不用每次通过 POST 请求指定 Cookie 参数
+
+```python
+s = requests.Session()
+r = s.post(login_url,data={'username':'123','password':'123'},headers=headers) # 登录获取并保存 Cooikie
+r = s.get(url,headers=headers) # 自动携带 Cookie
+```
 
 
 
