@@ -2,7 +2,7 @@
 title: Python 环境安装
 description: 
 published: true
-date: 2021-02-22T08:48:00.762Z
+date: 2021-02-22T08:52:17.143Z
 tags: python, 安装
 editor: markdown
 dateCreated: 2021-02-22T08:48:00.762Z
@@ -95,10 +95,16 @@ rmvirtualenv flask_py3
 ## venv 
 
 ```shell
-# 安装
+# 安装，默认安装 pip
 python3 -m venv [虚拟环境名称]
 
 eg: python3 -m venv my_venv
+
+# 不安装 pip
+python3 -m venv --without-pip myvenv
+
+# 进入 my_venv 强制安装更新 pip 【激活之后】
+./python3 -m ensurepip --upgrade
 
 # 激活
 source venv/bin/activate
