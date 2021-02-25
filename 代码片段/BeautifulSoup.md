@@ -2,9 +2,9 @@
 title: BeautifulSoup 爬取豆瓣 Top250 
 description: 
 published: true
-date: 2021-02-22T10:13:31.151Z
-tags: 代码片段, beautifulsoup, 爬虫, requests
-editor: markdown
+date: 2021-02-22T10:13:33.629Z
+tags: 
+editor: undefined
 dateCreated: 2021-02-22T10:13:31.151Z
 ---
 

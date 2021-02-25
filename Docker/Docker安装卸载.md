@@ -2,17 +2,10 @@
 title: Docker 安装卸载
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:36:22.834Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T09:35:15.612Z
-=======
 date: 2021-02-21T14:36:43.906Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:36:41.313Z
->>>>>>> docs: add all untracked content
 ---
 
 > [官方教程 Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)

@@ -2,9 +2,9 @@
 title: Python 环境安装
 description: 
 published: true
-date: 2021-02-22T08:52:17.143Z
-tags: python, 安装
-editor: markdown
+date: 2021-02-22T08:52:19.771Z
+tags: 
+editor: undefined
 dateCreated: 2021-02-22T08:48:00.762Z
 ---
 

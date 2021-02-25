@@ -2,17 +2,10 @@
 title: Ubuntu 安装 Nginx
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:34:18.876Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T08:35:07.713Z
-=======
 date: 2021-02-21T14:37:26.463Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:37:23.948Z
->>>>>>> docs: add all untracked content
 ---
 
 ## 1. Nginx 卸载

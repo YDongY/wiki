@@ -2,17 +2,10 @@
 title: 01-HelloWorld
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:34:41.693Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T08:35:39.371Z
-=======
 date: 2021-02-21T14:38:34.341Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:38:31.735Z
->>>>>>> docs: add all untracked content
 ---
 
 # Hello World

@@ -2,17 +2,10 @@
 title: 06-sed和awk工具
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:36:07.288Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T08:56:32.694Z
-=======
 date: 2021-02-21T14:40:18.058Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:40:14.830Z
->>>>>>> docs: add all untracked content
 ---
 
 # 正则表达式

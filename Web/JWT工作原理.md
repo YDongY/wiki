@@ -2,17 +2,10 @@
 title: JSON Web Token 工作原理
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:36:37.881Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T09:58:12.254Z
-=======
 date: 2021-02-21T14:37:01.323Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:36:58.653Z
->>>>>>> docs: add all untracked content
 ---
 
 > [https://jwt.io/introduction/](https://jwt.io/introduction/)

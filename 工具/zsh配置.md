@@ -2,17 +2,10 @@
 title: zsh 配置
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:34:27.531Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T08:35:20.101Z
-=======
 date: 2021-02-21T14:37:45.106Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:37:42.605Z
->>>>>>> docs: add all untracked content
 ---
 
 # oh My Zsh 安装

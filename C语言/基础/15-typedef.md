@@ -2,17 +2,10 @@
 title: 15-typedef
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:37:47.104Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T13:24:25.471Z
-=======
 date: 2021-02-21T14:39:27.273Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:39:24.844Z
->>>>>>> docs: add all untracked content
 ---
 
 # typedef

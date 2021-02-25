@@ -2,17 +2,10 @@
 title: Docker Compose
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:36:19.391Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T09:32:43.219Z
-=======
 date: 2021-02-21T14:36:32.273Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:36:29.653Z
->>>>>>> docs: add all untracked content
 ---
 
 # 1. 安装Docker Compose

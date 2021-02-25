@@ -2,17 +2,10 @@
 title: Docker 安装 Redis
 description: 
 published: true
-<<<<<<< HEAD
-date: 2021-02-21T13:36:16.598Z
-tags: 
-editor: undefined
-dateCreated: 2021-02-21T09:31:21.364Z
-=======
 date: 2021-02-21T14:37:22.896Z
 tags: 
 editor: undefined
 dateCreated: 2021-02-21T14:37:20.271Z
->>>>>>> docs: add all untracked content
 ---
 
 # 1. 查看可用版本
