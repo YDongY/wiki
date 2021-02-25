@@ -2,7 +2,7 @@
 title: QuerySet API
 description: 
 published: true
-date: 2021-02-24T12:19:16.381Z
+date: 2021-02-25T12:50:47.113Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-24T11:01:54.344Z
