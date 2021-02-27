@@ -2,7 +2,7 @@
 title: Django 模型
 description: 
 published: true
-date: 2021-02-27T08:51:28.974Z
+date: 2021-02-27T09:35:06.262Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-27T07:41:11.095Z
@@ -91,7 +91,7 @@ mysql> desc app02_person;
 | `URLField`                                     | `varchar(200)`          | URL                                                          |
 | `UUIDField`                                    | `char(32)`              | 唯一标识符，使用 Python 的 [`UUID`](https://docs.python.org/3/library/uuid.html#uuid.UUID) 类 |
 
-## 字段选项
+# 字段选项
 
 > [字段选项参考文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/fields/#common-model-field-options)
 {.is-success}
@@ -114,4 +114,564 @@ mysql> desc app02_person;
  | `verbose_name`    | 字段的一个人类可读名称，如果没有给定详细名称，Django 会使用字段的属性名自动创建，并将下划线转换为空格 |
  | `validators`      | 要为该字段运行的验证器列表。                                 |
 
+# 查询返回 QuerySet 的方法
+
+| 方法                  | 描述                                                         |
+| :-------------------- | :----------------------------------------------------------- |
+| `filter()`            | 根据查询条件，返回满足条件参数的 QuerySet。多个参数通过底层 SQL 语句中的 AND 连接。 |
+| `exclude()`           | 根据查询条件，返回不满足条件参数的 QuerySet。多个参数通过底层 SQL 语句中的 AND 连接，整个过程用 `NOT()` 括起来。 |
+| `annotate()`          | 用所提供的[查询表达式](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/)列表对 QuerySet 中的每个对象进行注解 |
+| `order_by()`          | 对查询结果排序，默认情况下，返回的结果是按照模型 Meta 中的 ordering 选项给出的排序元组排序的 |
+| `reverse()`           | 反转 QuerySet 的默认顺序                                     |
+| `distinct()`          | 执行 SQL`SELECT DISTINCT`查询以消除重复的行                  |
+| `values()`            | 返回字典而不是模型实例                                       |
+| `values_list()`       | 返回元组而不是模型实例                                       |
+| `dates()`             | 返回一个 QuerySet，其中包含指定日期范围内的所有可用日期      |
+| `datetimes()`         | 返回一个 QuerySet，其中包含指定日期和时间范围内的所有可用日期 |
+| `none()`              | 创建一个空的 QuerySet                                        |
+| `all()`               | 返回当前 QuerySet 的副本                                     |
+| `union()`             | 使用 SQL `UNION`运算符组合两个或多个 QuerySet                |
+| `intersection()`      | 使用 SQL `INTERSECT`运算符返回两个或多个 QuerySet 的共享元素 |
+| `difference()`        | 使用 SQL `EXCEPT`运算子可传回第一个 QuerySet 中其他元素以外的元素 |
+| `select_related()`    | 执行查询时选择所有相关数据（多对多关系除外）                 |
+| `prefetch_related()`  | 执行查询时选择所有相关数据（包括多对多关系）                 |
+| `defer()`             | 不要从数据库中检索命名字段。用于提高复杂数据集的查询性能     |
+| `only()`              | 与—相反，`defer()`仅返回命名字段                             |
+| `using()`             | 选择将使用哪个数据库查询集（使用多个数据库时）               |
+| `select_for_update()` | 返回一个 QuerySet 并锁定表行，直到事务结束                   |
+| `raw()`               | 执行原始 SQL 语句                                            |
+| `AND (&)`             | 将两个 QuerySet 与 SQL `AND`运算符结合在一起。使用`AND (&)`在功能上等同于使用`filter()`多个参数 |
+| `OR (|)`              | 将两个 QuerySet 与 SQL `OR` 运算符组合                       |
+
+## exclude()
+
+`exclude()` 将返回与给定的查找参数不匹配的对象的QuerySet，例如：
+
+- 多个条件
+
+```python
+>>> BookInfo.objects.exclude(name='天龙八部',id=2)
+<QuerySet [<BookInfo: 射雕英雄传>, <BookInfo: 笑傲江湖>, <BookInfo: 雪山飞狐>]>
+```
+
+用 SQL 术语：
+
+```sql
+SELECT ... WHERE NOT (name='天龙八部' AND id=2);
+```
+
+- 多次 exclude
+
+```python
+>>> BookInfo.objects.exclude(name='天龙八部').exclude(id=3)
+<QuerySet [<BookInfo: 射雕英雄传>, <BookInfo: 雪山飞狐>]>
+```
+
+用 SQL 术语：
+
+```sql
+SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
+```
+
+## order_by() 和reverse()
+
+- `order_by()` 对结果排序
+
+```python
+>>> BookInfo.objects.order_by() # 默认按字段升序排序
+<QuerySet [<BookInfo: 射雕英雄传>, <BookInfo: 天龙八部>, <BookInfo: 笑傲江湖>, <BookInfo: 雪山飞狐>]>
+>>> BookInfo.objects.order_by('-id') # id 倒叙排序
+<QuerySet [<BookInfo: 雪山飞狐>, <BookInfo: 笑傲江湖>, <BookInfo: 天龙八部>, <BookInfo: 射雕英雄传>]>
+>>> BookInfo.objects.order_by('?') # 随机排序
+<QuerySet [<BookInfo: 雪山飞狐>, <BookInfo: 天龙八部>, <BookInfo: 射雕英雄传>, <BookInfo: 笑傲江湖>]>
+```
+
+- `reverse()` 反转QuerySet的默认顺序：
+
+```python
+>>> BookInfo.objects.reverse()
+<QuerySet [<BookInfo: 射雕英雄传>, <BookInfo: 天龙八部>, <BookInfo: 雪山飞狐>, <BookInfo: 笑傲江湖>]>
+>>> BookInfo.objects.reverse().reverse()
+<QuerySet [<BookInfo: 笑傲江湖>, <BookInfo: 雪山飞狐>, <BookInfo: 天龙八部>, <BookInfo: 射雕英雄传>]>
+```
+
+模型必须具有默认顺序（通过设置 `models Meta`类的 `ordering` 选项）`reverse()` 才能有用。如果模型是无序的，则返回的 QuerySet 的排序顺序将毫无意义。
+
+## values() 和 values_list()
+
+- `values()` : 返回字典，每一个字典都代表一个对象，键与模型对象的属性名相对应。
+
+```python
+>>> BookInfo.objects.values()
+<QuerySet [{'id': 3, 'name': '笑傲江湖', 'pub_date': datetime.date(1995, 12, 24), 'readcount': 20, 'commentcount': 80, 'is_delete': F}, {'id': 4, 'name': '雪山飞狐', 'pub_date': datetime.date(1987, 11, 11), 'readcount': 58, 'commentcount': 34, 'is_delete': False}, {: 2, 'name': '天龙八部', 'pub_date': datetime.date(1986, 7, 24), 'readcount': 36, 'commentcount': 40, 'is_delete': False}, {'id': 1, e': '射雕英雄传', 'pub_date': datetime.date(1980, 5, 1), 'readcount': 12, 'commentcount': 34, 'is_delete': False}]>
+>>>
+>>> BookInfo.objects.values('id','name') # 限制 id name
+<QuerySet [{'id': 3, 'name': '笑傲江湖'}, {'id': 4, 'name': '雪山飞狐'}, {'id': 2, 'name': '天龙八部'}, {'id': 1, 'name': '射雕英雄传'}]>
+>>>
+```
+
+- `values_list()`：与相同values()，返回元组：
+
+```python
+>>> BookInfo.objects.values_list('id','name')
+<QuerySet [(3, '笑傲江湖'), (4, '雪山飞狐'), (2, '天龙八部'), (1, '射雕英雄传')]>
+>>>
+>>> BookInfo.objects.values_list('id')
+<QuerySet [(3,), (4,), (2,), (1,)]>
+>>> BookInfo.objects.values_list('id',flat=True) # flat=True 返回单个元素
+<QuerySet [3, 4, 2, 1]>
+>>>
+>>> BookInfo.objects.values_list('name',flat=True)
+<QuerySet ['笑傲江湖', '雪山飞狐', '天龙八部', '射雕英雄传']>
+>>> BookInfo.objects.values_list('name',flat=True).get(id=2)
+'天龙八部'
+```
+
+## date() 和datetimes()
+
+使用 `dates()` 和 `datetimes()` 方法从数据库中返回有时间限制的记录。对于dates() 这些时间界限是 year，month，week 和 day。datetimes() 增加了hour，minute 和 second 界限。一些例子：
+
+```python
+>>> BookInfo.objects.filter(id__lt=3).dates('pub_date','year')  # 年
+<QuerySet [datetime.date(1980, 1, 1), datetime.date(1986, 1, 1)]>
+>>> BookInfo.objects.filter(id__lt=3).dates('pub_date','month') # 年-月
+<QuerySet [datetime.date(1980, 5, 1), datetime.date(1986, 7, 1)]>
+>>> BookInfo.objects.filter(id__lt=3).dates('pub_date','week')
+<QuerySet [datetime.date(1980, 4, 28), datetime.date(1986, 7, 21)]>
+>>> BookInfo.objects.filter(id__lt=3).dates('pub_date','day')   # 年-月-日
+<QuerySet [datetime.date(1980, 5, 1), datetime.date(1986, 7, 24)]>
+>>> BookInfo.objects.filter(id__lt=3).dates('pub_date','day',order='DESC') # 按日倒叙
+<QuerySet [datetime.date(1986, 7, 24), datetime.date(1980, 5, 1)]>
+```
+
+## union() 和 intersection() 和 difference()
+
+- `UNION()`
+
+使用 SQL 的 UNION 操作符来组合两个或多个 QuerySet 的结果，即求并集。默认去重。要允许重复的值，使用 `all=True` 参数。
+
+```python
+>>> from app01.models import Person
+>>> Person.objects.all()
+<QuerySet [<Person: Jack>, <Person: Tom>, <Person: Mike>, <Person: Herry>, <Person: Jerry>, <Person: Lisa>, <Person: Frank>]>
+
+>>> p1 = Person.objects.filter(id__gte=4)
+>>> p1
+<QuerySet [<Person: Herry>, <Person: Jerry>, <Person: Lisa>, <Person: Frank>]>
+
+>>> p2 = Person.objects.filter(id__lte=5)
+>>> p2
+<QuerySet [<Person: Jack>, <Person: Tom>, <Person: Mike>, <Person: Herry>, <Person: Jerry>]>
+```
+
+```python
+>>> q = p1.union(p2) # p1 和 p2 并集，不包括重复的
+>>> q
+<QuerySet [<Person: Herry>, <Person: Jerry>, <Person: Lisa>, <Person: Frank>, <Person: Jack>, <Person: Tom>, <Person: Mike>]>
+
+>>> q = p1.union(p2, all = True) # # p1 和 p2 并集，包括重复的
+>>> q
+<QuerySet [<Person: Herry>, <Person: Jerry>, <Person: Lisa>, <Person: Frank>, <Person: Jack>, <Person: Tom>, <Person: Mike>, <Person: Herry>, <Person: Jerry>]>
+
+>>> p3 = Person.objects.filter(id=1)
+>>> p3
+<QuerySet [<Person: Jack>]>
+>>> q = p1.union(p2, p3) # 多个集合求并集
+>>> q
+<QuerySet [<Person: Herry>, <Person: Jerry>, <Person: Lisa>, <Person: Frank>, <Person: Jack>, <Person: Tom>, <Person: Mike>]>
+```
+
+- `intersection()`
+
+使用 SQL 的 INTERSECT 操作符来返回两个或多个 QuerySet 的共享元素，即求交集
+
+- `difference()`
+
+使用 SQL 的 EXCEPT 操作符，只保留存在于 QuerySet 中的元素，而不保留在其他 QuerySet 中的元素，即求差集
+
+## select_related() 和 prefetch_related()
+
+- `select_related()`：返回一个 QuerySet 并且查询出外键相关联的数据，意味着首次查询比较耗时，但是以后使用外键关系将不需要数据库查询。
+
+例如
+
+```python
+# 1. 访问数据库
+person = PeopleInfo.objects.get(id=1)
+# 2. 访问数据库，获取相关的 Book 对象
+book  = person.book
+```
+
+使用 select_related 查找:
+
+```python
+# 1. 访问数据库
+person = PeopleInfo.objects.select_related('book').get(id=1)
+
+# 2. 不需要访问数据库，因为 person.book 已经被预先填充在上一个查询中
+book = person.book
+```
+
+使用 select_related() 来处理任何对象的查询集
+
+```python
+from django.utils import timezone
+
+# 查找有关 1 号人物的所有的书籍
+books = set()
+
+>>> 
+>>> for p in ps:
+...     p.book
+... 
+
+for p in PeopleInfo.objects.filter(id__lt=8).select_related('book'):
+    # 如果没有 select_related，将为每个对象创建一个数据库查询
+    books.add(ps.book)
+```
+
+> filter() 和 select_related() 的顺序并不重要
+{.is-success}
+
+多个外键使用 select_related(） 查询，将会缓存多个模型相关的数据，例如：
+
+```python
+from django.db import models
+
+class City(models.Model):
+    # ...
+    pass
+
+class Person(models.Model):
+    # ...
+    hometown = models.ForeignKey(
+        City,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+
+class Book(models.Model):
+    # ...
+    author = models.ForeignKey(Person, on_delete=models.CASCADE)
+```
+
+```python
+# 将缓存相关的 Person 和 相关的 City：
+Book.objects.select_related('author__hometown').get(id=4)
+p = b.author         # 不需要访问数据库
+c = p.hometown       # 不需要访问数据库
+```
+
+如果 需要清除过去调用 select_related 在 QuerySet 上添加的相关字段列表，你可以传递 None 作为参数：
+
+```python
+without_relations = queryset.select_related(None)
+```
+
+更多写法：链式调用
+
+```python
+select_related('foo').select_related('bar')
+# 等同于
+select_related('foo', 'bar')
+```
+
+- `prefetch_related()`：与 select_related 有类似的目的，阻止因访问相关对象而引起的数据库查询潮，但策略却完全不同。
+
+select_related 的工作方式是创建一个 SQL 连接，并在 SELECT 语句中包含相关对象的字段，仅限于单值关系，外键和一对一。
+
+prefetch_related 则对每个关系进行单独的查找，并在 Python 中进行 `joining`，除了支持外键和一对一关系外，还可以预取多对多和多对一的对象
+
+例如，假设你有这些模型：
+
+```python
+from django.db import models
+
+class Topping(models.Model):
+    name = models.CharField(max_length=30)
+
+class Pizza(models.Model):
+    name = models.CharField(max_length=50)
+    toppings = models.ManyToManyField(Topping)
+
+    def __str__(self):
+        return "%s (%s)" % (
+            self.name,
+            ", ".join(topping.name for topping in self.toppings.all()),
+        )
+```
+
+运行
+
+```python
+>>> Pizza.objects.all()
+["Hawaiian (ham, pineapple)", "Seafood (prawns, smoked salmon)"...
+```
+
+这样做的问题是，每次 `Pizza.__str__()` 都要要求 `self.toppings.all()` 查询数据库，导致执行`Pizza.objects.all()` 时， Toppings 表会对 Pizza QuerySet 中的 每项进行查询。
+
+通过使用 prefetch_related 减少到只有两个查询：
+
+```python
+Pizza.objects.all().prefetch_related('toppings')
+```
+
+这意味着每一个 Pizza 都有一个 `self.toppings.all()`，现在每次调用 `self.toppings.all()` 时，不必再去数据库中寻找这些项目，而是在一次查询中填充的预设 QuerySet 缓存中找到它们。
+
+> `prefetch_related()` 中的附加查询是在 QuerySet 开始执行和主要查询被执行后执行的
+
+# 查询不返回 QuerySet 的方法
+
+| 方法                 | 描述                                                         |
+| :------------------- | :----------------------------------------------------------- |
+| `get()`              | 返回单个对象。如果查找返回多个对象，则会引发 `Model.MultipleObjectsReturned`，没有找到任何对象，它会引发一个 `Model.DoesNotExist` 异常 |
+| `get_or_create()`    | 返回单个对象。如果对象不存在，它将创建一个                   |
+| `update_or_create()` | 更新单个对象。如果对象不存在，它将创建一个                   |
+| `count()`            | 计算返回的 QuerySet 中的对象数。返回一个整数。背后执行 `SELECT COUNT(*)` |
+| `in_bulk()`          | 返回一个包含所有具有列出 ID 的对象的 QuerySet                |
+| `iterator()`         | 查询直接读取结果不在 QuerySet 级别做任何缓存，返回一个迭代器，对于返回大量对象的 QuerySet  可以减少内存。 |
+| `latest()`           | 根据给定的字段返回数据库表中的最新对象，默认根据 Meta 指定了 get_latest_by，否则根据给定参数                       |
+| `earliest()`         | 根据给定的字段返回数据库表中最早的对象                       |
+| `first()`            | 返回与 QuerySet 匹配的第一个对象，如果没有匹配的对象，则返回 None。对于没有排序的，查询集自动按主键排序 |
+| `last()`             | 返回与 QuerySet 匹配的最后一个对象，如果没有匹配的对象，则返回 None |
+| `aggregate()`        | 聚合查询                                                     |
+| `exists()`           | QuerySet 是否包含任何结果，包含则返回 True，如果不包含，则返回 False |
+| `as_manager()`       | 返回一个`Manager`包含 QuerySet 方法副本的类实例              |
+| `explain()`          | 返回 QuerySet 的执行计划的字符串。用于分析查询性能           |
+
+
+## in_bulk()
+
+接受一个字段值列表 `id_list`，返回字段值与其对应对象的映射字典。其中 `field_name` 必须是一个唯一的字段，它默认为主键
+
+- 如果没有提供 `id_list`，则返回查询集中的所有对象。
+- 如果提供一个空列表，你将得到一个空字典。
+
+```python
+# eg: Blog.objects.in_bulk([id1,id2])
+# res: {1: <obj1>,2:<obj2>}
+
+>>> Blog.objects.in_bulk([1])
+{1: <Blog: Beatles Blog>}
+>>> Blog.objects.in_bulk([1, 2])
+{1: <Blog: Beatles Blog>, 2: <Blog: Cheddar Talk>}
+>>> Blog.objects.in_bulk([])
+{}
+>>> Blog.objects.in_bulk()
+{1: <Blog: Beatles Blog>, 2: <Blog: Cheddar Talk>, 3: <Blog: Django Weblog>}
+>>> Blog.objects.in_bulk(['beatles_blog'], field_name='slug')
+{'beatles_blog': <Blog: Beatles Blog>}
+```
+
+## iterator()
+
+查询直接读取结果不在 QuerySet 级别做任何缓存，返回一个迭代器。对于一个只需要访问一次就能返回大量对象的 QuerySet 来说，这可以带来更好的性能，并显著减少内存。
+
+> QuerySet 通常会在内部缓存其结果，默认的迭代器调用 iterator() 并缓存返回值。
+{.is-info}
+
+chunk_size 参数控制 Django 从数据库驱动中获取的批次大小。批量越大，就会减少与数据库驱动通信的开销，但代价是略微增加内存消耗。默认值 2000。
+
+> 使用 iterator() 会导致 refetch_related() 调用被忽略，因为这两种优化方式放在一起没有意义。
+{.is-warning}
+
+# 添加
+
+## save()
+
+Django 仅当在显式调用 save() 才操作数据库。其背后执行了 `INSERT SQL` 语句
+
+```python
+>>> from blog.models import Blog
+>>> b = Blog(name='Beatles Blog', tagline='All the latest Beatles news.')
+>>> b.save()
+```
+
+## create()
+
+创建一个对象并一步到位地保存
+
+```python
+>>> Author.objects.create(name="Jack", email="admin@admin.com")
+<Author: Jack>
+```
+
+与下面的方式等价：
+
+```python
+a = Author(name="Jack", email="admin@admin.com")
+a.save(force_insert=True) # 强制执行 INSERT
+```
+
+## bulk_create()
+
+将所提供的对象列表以高效的方式插入到数据库中
+
+```python
+>>> a1 = Author(name = 'Mike',email = 'mike@qq.com')
+>>> a2 = Author(name = 'Tom',email = 'tom@163.com')
+>>> Author.objects.bulk_create([a1,a2])
+[<Author: Mike>, <Author: Tom>]
+```
+
+> 有关注意事项参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#bulk-create)
+{.is-success}
+
+该方法有一个 batch_size 参数控制在一次查询中创建多少对象，默认情况是在一个批次中创建所有对象，但 SQLite 除外，默认情况是每个查询最多使用 999 个变量。
+
+## get_or_create()
+
+一个简便的方法，用于查找特定对象，不存在则创建。
+
+常用来防止在并行进行请求时创建重复的对象，例如：
+
+```python
+try:
+    obj = Person.objects.get(first_name='John', last_name='Lennon')
+except Person.DoesNotExist:
+    obj = Person(first_name='John', last_name='Lennon', birthday=date(1940, 10, 9))
+    obj.save()
+```
+
+如果是并发请求，可能会多次尝试用相同的参数保存一个 Person。为了避免这种竞争条件，可以使用 get_or_create() 重写上面的例子，比如：
+
+```python
+obj, created = Person.objects.get_or_create(
+    first_name='John',
+    last_name='Lennon',
+    defaults={'birthday': date(1940, 10, 9)},
+)
+```
+
+返回 `(object, created)` 的元组，其中 object 是检索或创建的对象，created 是指定是否创建新对象的布尔值。
+
+- 如果找到了一个对象，则 `get_or_create()` 返回该对象的元组和 False。
+
+- 如果找到多个对象，get_or_create() 会引发 `MultipleObjectsReturned`
+
+- 如果没有找到对象，返回一个新对象的元组和 True
+
+> 如果关键字参数中使用的字段有唯一性约束，这个方法是**原子性**的。否则并发调用可能会导致插入具有相同参数的多条记录。
+{.is-warning}
+
+
+**一个复杂的案例**
+
+如果 Robert 或 Bob Marley 存在，则检索 Robert 或 Bob Marley，否则创建后者：
+
+```python
+from django.db.models import Q
+
+obj, created = Person.objects.filter(
+    Q(first_name='Bob') | Q(first_name='Robert'),
+).get_or_create(last_name='Marley', defaults={'first_name': 'Bob'})
+```
+
+> 官方推荐只在 POST 请求中使用它，因为 GET 请求不应该对数据有任何影响。
+{.is-success}
+
+> 通过 ManyToManyField 属性和反向关系来使用 get_or_create()。在这种情况下，你将限制在该关系的上下文内进行查询。如果你不持续使用它，这可能会导致一些完整性问题。
+{.is-warning}
+
+例如：
+
+```python
+class Chapter(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+
+class Book(models.Model):
+    title = models.CharField(max_length=256)
+    chapters = models.ManyToManyField(Chapter)
+```
+
+可以通过 Book 的 chapters 字段使用 get_or_create()，但它只能在该书的上下文中获取：
+
+```python
+>>> book = Book.objects.create(title="Ulysses")
+>>> book.chapters.get_or_create(title="Telemachus")
+(<Chapter: Telemachus>, True)
+>>> book.chapters.get_or_create(title="Telemachus")
+(<Chapter: Telemachus>, False)
+>>> Chapter.objects.create(title="Chapter 1") # 这一行导致下面出现异常
+<Chapter: Chapter 1>
+>>> book.chapters.get_or_create(title="Chapter 1")
+# Raises IntegrityError 抛出异常
+```
+
+# 修改
+
+## update_or_create()
+
+用给定的 kwargs 更新对象的一种方便方法，是必要时创建一个新对象。defaults 是用来更新对象的 (field, value) 对的字典。defaults 中的值可以是可调用对象。
+
+具体的含义与注意事项与 get_or_update() 一样。
+
+例如：
+
+```python
+defaults = {'first_name': 'Bob'}
+try:
+    obj = Person.objects.get(first_name='John', last_name='Lennon')
+    for key, value in defaults.items():
+        setattr(obj, key, value)
+    obj.save()
+except Person.DoesNotExist:
+    new_values = {'first_name': 'John', 'last_name': 'Lennon'}
+    new_values.update(defaults)
+    obj = Person(**new_values)
+    obj.save()
+```
+
+上面的例子可以使用 update_or_create() 重写
+
+```python
+obj, created = Person.objects.update_or_create(
+    first_name='John', last_name='Lennon',
+    defaults={'first_name': 'Bob'},
+)
+```
+
+## update()
+
+对指定的字段执行 SQL 更新查询，并返回匹配的行数
+
+例如，要关闭 2010 年发表的所有博客条目的评论：
+
+```python
+Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
+```
+
+如果只是更新一条记录，不需要对模型对象做任何事情，最有效的方法是调用 update()，而不是将模型对象加载到内存中。例如，不要这样做：
+
+```python
+e = Entry.objects.get(id=10)
+e.comments_on = False
+e.save()
+```
+
+因为 update() 是在 SQL 级别上进行更新，因此，它不会在模型上调用任何 save() 方法，也不会发出 pre_save 或 post_save 信号
+
+# 删除
+
+## delete()
+
+对 QuerySet 中的所有行执行 SQL 删除查询，并返回删除的对象数量和每个对象类型的删除数量的字典。
+
+```python
+>>> b = Blog.objects.get(pk=1)
+
+# Delete all the entries belonging to this Blog.
+>>> Entry.objects.filter(blog=b).delete()
+(4, {'weblog.Entry': 2, 'weblog.Entry_authors': 2})
+```
+
+> 默认情况下，Django 的 ForeignKey 模拟了 SQL 约束 ON DELETE CASCADE
+{.is-info}
+
+delete() 方法进行批量删除，会为所有被删除的对象（包括级联删除）发出 pre_delete 和 post_delete 信号。
+
+Django 需要将对象获取到内存中来发送信号和处理级联。但是，如果没有级联和信号，那么 Django 可能会采取**快速路径**删除对象，而不需要将其获取到内存中。对于大面积的删除，这可以使内存使用量大大降低。也可以减少执行查询的数量。
+
+设置为 on_delete=DO_NOTHING 的外键不会阻止在删除时采取快速路径。
 
