@@ -2,7 +2,7 @@
 title: Docker 安装卸载
 description: 
 published: true
-date: 2021-02-28T04:10:48.648Z
+date: 2021-02-28T06:00:00.661Z
 tags: 安装, docker
 editor: markdown
 dateCreated: 2021-02-21T14:36:41.313Z
@@ -151,6 +151,12 @@ $ docker info
   "registry-mirrors": ["http://hub-mirror.c.163.com"]
 }
 ```
+
+## 3.3 DaoCloud 加速
+
+> [官方地址](https://dashboard.daocloud.io/packages/explore)
+{.is-success}
+
 
 # 4. Deepin 中安装 Docker
 
