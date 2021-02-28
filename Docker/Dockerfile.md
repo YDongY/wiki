@@ -2,9 +2,9 @@
 title: Dockerfile
 description: 
 published: true
-date: 2021-02-28T13:29:32.896Z
+date: 2021-02-28T13:29:35.526Z
 tags: 
-editor: markdown
+editor: undefined
 dateCreated: 2021-02-21T14:36:37.478Z
 ---
 

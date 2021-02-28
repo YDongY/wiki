@@ -2,9 +2,9 @@
 title: Docker Cli
 description: 
 published: true
-date: 2021-02-28T14:45:49.720Z
-tags: docker
-editor: markdown
+date: 2021-02-28T14:45:52.646Z
+tags: 
+editor: undefined
 dateCreated: 2021-02-21T14:36:33.308Z
 ---
 
