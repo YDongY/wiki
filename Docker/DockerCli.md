@@ -2,7 +2,7 @@
 title: Docker Cli
 description: 
 published: true
-date: 2021-02-28T05:37:15.046Z
+date: 2021-02-28T14:45:49.720Z
 tags: docker
 editor: markdown
 dateCreated: 2021-02-21T14:36:33.308Z
@@ -387,9 +387,12 @@ vim /etc/docker/daemon.json    
 # 在上述文件中添加一个key，保存退出。此步用于让 docker 信任私有仓库地址；注意将私有仓库服务器 ip 修改为自己私有仓库服务器真实 ip 
 {"insecure-registries":["私有仓库服务器ip:5000"]}
 
-# 5、重启docker 服务 
-systemctl restart docker
-docker start registry
+## 5、修改 docker.service
+# vim /lib/systemd/system/docker.service
+# 在 [service] 选项下添加 EnvionmentFile=/etc/docker/daemon.json
+
+# 6、重启docker 服务 
+sudo service docker restart
 ```
 
 ## 5.3 将镜像上传至私有仓库
@@ -408,3 +411,16 @@ docker push 私有仓库服务器IP:5000/xxx
 # 拉取镜像 
 docker pull 私有仓库服务器ip:5000/xxx
 ```
+
+# 6. 容器资源限制
+
+## memeory
+
+```shell
+
+```
+
+
+
+
+
