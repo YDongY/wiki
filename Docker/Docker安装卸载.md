@@ -2,7 +2,7 @@
 title: Docker 安装卸载
 description: 
 published: true
-date: 2021-02-28T06:00:00.661Z
+date: 2021-03-01T11:31:14.199Z
 tags: 安装, docker
 editor: markdown
 dateCreated: 2021-02-21T14:36:41.313Z
@@ -34,7 +34,16 @@ $ sudo apt autoremove docker* --purge
 $ sudo rm -rf /var/lib/docker
 ```
 
-# 2. Ubuntu APT 安装
+# 2. Ubuntu 安装
+
+## 2.1 脚本
+
+```shell
+$ wget -qO- https://get.docker.com/ | sh
+$ sudo usermod -aG docker vagrant # 添加 vagrant 用户到 Docker 组
+```
+
+## 2.2 APT
 
 - 安装需要的包
 
@@ -103,6 +112,13 @@ $ sudo systemctl start docker
 
 ```shell
 $ docker -v
+```
+
+- 开机自启，默认自启
+
+```shell
+$ sudo systemctl enable docker
+$ sudo systemctl is-enabled docker # 查看是否自启
 ```
 
 # 3. 镜像加速
