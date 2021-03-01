@@ -2,20 +2,22 @@
 title: Docker Cli
 description: 
 published: true
-date: 2021-02-28T14:45:52.646Z
-tags: 
-editor: undefined
+date: 2021-03-01T12:20:51.497Z
+tags: docker
+editor: markdown
 dateCreated: 2021-02-21T14:36:33.308Z
 ---
 
-# 1. Docker
+# 1. Docker 引擎
 
 > [Docker Cli 官方文档](https://docs.docker.com/engine/reference/commandline/docker/)
 {.is-success}
 
 ![docker-cli.png](/assets/docker/docker-cli.png)
 
-# 2. 镜像命令
+# 2. Docker 镜像
+
+Linux Docker 主机本地镜像仓库位于 `/var/lib/docker/<storage-driver>`
 
 ## 2.1 列出本地主机上的镜像信息
 
@@ -55,6 +57,22 @@ Options:
       --format string   Pretty-print images using a Go template
       --no-trunc        Don't truncate output
   -q, --quiet           Only show numeric IDs
+  
+$ docker image ls --filter dangling=true
+# 返回悬虚的镜像，即 TAG=none 的镜像
+
+$ docker image ls --filter=reference="*:latest"
+# 返回标签 latest 的示例
+
+$ docker image ls --format "{{ .Size }}"
+5.61MB
+156MB
+72.9MB
+
+$ docker image ls --format "{{ .Tag }}:{{ .Size }}"
+latest:5.61MB
+latest:156MB
+latest:72.9MB
 ```
 
 ## 2.2 搜索镜像
@@ -68,6 +86,12 @@ NAME              DESCRIPTION                  STARS      OFFICIAL    AUTOMATED
 mysql             MySQL is a widely used,....  9682         [OK]
 mariadb           MariaDB is a community.....  3523         [OK]
 ............
+
+$ docker search alpine --filter "is-official=true"
+# 只返回官方仓库
+
+$ docker search alpine --filter "is-automated=true"
+# 只显示自动创建的仓库
 ```
 
 - 搜索`stars`超过 20 的，通过列名过滤
@@ -85,9 +109,22 @@ $ sudo docker search mysql --limit 10
 ## 2.3 拉取镜像
 
 ```shell
-$ docker pull image[:TAG] # 默认：docker pull 镜像名:latest,版本可选
+$ docker pull <repository>:<tag>
 
-# eg:sudo docker pull mysql
+$ docker pull mongo:3.3.11
+# 从官方 Mongo 库拉取标签为 3.3.11 的镜像
+
+$ docker pull redis:latest
+# 从官方 redis 库拉取标签为 latest 的镜像
+
+$ docker pull alpine
+# 从官方 alpine 库拉取标签为 latest 的镜像
+
+$ docker pull ydongy/ubuntu
+# 从 ydongy 账户为命名空间的 ubuntu 库中拉取标签 latest 的镜像
+
+$ docker pull daocloud.io/library/rabbitmq
+# 从第三方镜像仓库服务获取镜像
 ```
 
 ## 2.4 删除镜像
@@ -117,7 +154,7 @@ $ docker rmi -f 镜像名1 镜像名2
 $ docker rmi -f $(docker images -qa)
 ```
 
-# 3. 容器命令
+# 3. Docker 容器
 
 ## 3.1 新建并启动容器
 
