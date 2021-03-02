@@ -2,7 +2,7 @@
 title: Docker 安装卸载
 description: 
 published: true
-date: 2021-03-01T11:31:14.199Z
+date: 2021-03-02T03:14:14.243Z
 tags: 安装, docker
 editor: markdown
 dateCreated: 2021-02-21T14:36:41.313Z
@@ -36,14 +36,39 @@ $ sudo rm -rf /var/lib/docker
 
 # 2. Ubuntu 安装
 
-## 2.1 脚本
+## 2.1 先决条件
+
+1. 运行 64 位 CPU 架构的计算机
+2. 内核必须支持一种 `storage driver` ，比如：`overlay2`、`aufs`、`btrfs`、`Device Mapper` 。Docker Engine 使用 `overlay2`作为默认的`storage driver`
+3. 内核需要支持并开启 `cgroup` 和 `namespace` 功能
+
+```shell
+# 1. 检查内核
+
+$ uname -a
+
+# 2. 升级内核
+
+$ sudo apt-get update
+$ sudo apt-get install linux-headers-5.8.0-34-generic linux-image-5.8.0-34-generic linux-headers-5.8.0-34
+
+# 3. 加载内核
+
+$ sudo update-grub
+
+# 4. 重启
+
+$ sudo reboot
+```
+
+## 2.2 脚本
 
 ```shell
 $ wget -qO- https://get.docker.com/ | sh
 $ sudo usermod -aG docker vagrant # 添加 vagrant 用户到 Docker 组
 ```
 
-## 2.2 APT
+## 2.3 APT
 
 - 安装需要的包
 
@@ -178,3 +203,16 @@ $ docker info
 
 > [https://wiki.deepin.org/wiki/Docker](https://wiki.deepin.org/wiki/Docker)
 {.is-info}
+
+
+# 5. Docker 与 UFW
+
+在 Ubuntu 中，如果使用 UFW ，默认情况下，UFW 会丢弃所有哦转发的数据包。为了让 Docker 正常运行，需要修改 `/etc/default/ufw` 配置：
+
+```shell
+DEFAULT_FORWARD_POLICY="DROP"
+
+# 修改为
+
+DEFAULT_FORWARD_POLICY="ACCEPT"
+```
