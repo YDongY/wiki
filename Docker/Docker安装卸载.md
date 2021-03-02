@@ -2,7 +2,7 @@
 title: Docker 安装卸载
 description: 
 published: true
-date: 2021-03-02T03:14:14.243Z
+date: 2021-03-02T03:20:55.806Z
 tags: 安装, docker
 editor: markdown
 dateCreated: 2021-02-21T14:36:41.313Z
@@ -215,4 +215,8 @@ DEFAULT_FORWARD_POLICY="DROP"
 # 修改为
 
 DEFAULT_FORWARD_POLICY="ACCEPT"
+
+# 保存修改，重新加载 UFW
+
+$ sudo ufw reload
 ```
