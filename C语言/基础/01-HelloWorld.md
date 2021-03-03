@@ -2,21 +2,13 @@
 title: 01-HelloWorld
 description: 
 published: true
-date: 2021-02-21T14:38:34.341Z
+date: 2021-03-03T04:46:54.435Z
 tags: 
-editor: undefined
+editor: markdown
 dateCreated: 2021-02-21T14:38:31.735Z
 ---
 
 # Hello World
-
-{{< details title="要点回顾：" open=true >}}
-
-- 编译过程
-- 分步编译
-- 反编译
-
-{{< /details >}}
 
 使用 C 语言实现 Hello World 程序：
 
