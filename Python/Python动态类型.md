@@ -2,7 +2,7 @@
 title: Python 动态类型
 description: 
 published: true
-date: 2021-03-05T12:07:25.338Z
+date: 2021-03-05T12:08:16.181Z
 tags: python
 editor: markdown
 dateCreated: 2021-03-05T11:34:20.411Z
@@ -34,7 +34,7 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8v
 
 通过上图可以得知，所谓变量与对象的连接就是引用，引用是一种关系，是通过内存中的指针的形式来实现。
 
-## 类型属于对象
+# 类型属于对象
 
 而所谓的对象，也无非就是被分配的一块内存，且有足够的空间去表示它们所代表的值。
 
