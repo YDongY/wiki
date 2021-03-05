@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-05T13:12:39.881Z
+date: 2021-03-05T13:12:50.398Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -11,10 +11,6 @@ dateCreated: 2021-03-04T09:14:14.448Z
 # 基本
 
 ## 列出 5 个标准库
-
-> https://docs.python.org/zh-cn/3/library/index.html
-> https://docs.python.org/zh-cn/3/tutorial/stdlib.html#brief-tour-of-the-standard-library
-{.is-success}
 
 | 模块名称              | 描述         |
 | --------------------- | ------------ |
@@ -28,6 +24,10 @@ dateCreated: 2021-03-04T09:14:14.448Z
 | `timeit`              | 性能测试     |
 | `threading`           | 多线程       |
 | `logging`             | 日志         |
+
+> https://docs.python.org/zh-cn/3/library/index.html
+> https://docs.python.org/zh-cn/3/tutorial/stdlib.html#brief-tour-of-the-standard-library
+{.is-success}
 
 ## Python 的内建数据类型有哪些
 
