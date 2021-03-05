@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-05T14:32:08.689Z
+date: 2021-03-05T15:15:17.849Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -73,13 +73,72 @@ class C:
 > https://docs.python.org/zh-cn/3/library/stdtypes.html#truth-value-testing
 {.is-success}
 
+## 单引号、双引号、三引号的用法
+
+三种引号都是表示字符串，用法基本相同，主要是防止配合使用造成的转义问题。
+
+- 单引号: `'允许包含有 "双" 引号'`
+- 双引号: `"允许包含有 '单' 引号"`
+- 三重引号: `'''三重单引号''', """三重双引号"""`
+
+> https://docs.python.org/zh-cn/3/library/stdtypes.html#text-sequence-type-str
+{.is-success}
+
+
 # 输入输出
 
 ## Python 中生成随机整数、随机小数、0~1之间小数的方法
 
+- 随机整数：`random.randint(a, b)`返回随机整数 N 满足 a <= N <= b
+
+```python
+>>> import random
+>>> random.randint(1,100)
+26
+>>> random.randint(1,100)
+47
+```
+
+- 0~1：`random.random()`返回 `[0.0, 1.0)` 范围内的下一个随机浮点数。
+
+```python
+>>> random.random()
+0.5384030446025826
+>>> random.random()
+0.9920142833314871
+```
+
+- 随机小数：`random.uniform(a, b)`返回一个随机浮点数 N ，当 a <= b 时 a <= N <= b ，当 b < a 时 b <= N <= a 。
+
+```python
+>>> random.uniform(1, 100)
+17.341271519550205
+>>> random.uniform(1, 100)
+8.95157964898575
+```
+
+> https://docs.python.org/zh-cn/3/library/random.html#module-random
+{.is-success}
+
+## 用 lambda 表达式实现两个数相乘
+
+```python
+>>> mul = lambda x:x*x
+>>> mul(10)
+100
+```
+ 
+
 # 条件循环
 
 # 异常
+
+## 说明异常模块中关键字的相关含义
+
+- try 
+- execpt
+- else 
+- finally 
 
 # 文件操作
 
@@ -113,6 +172,36 @@ b = [1,2]
 print(id(b)) # 140451796696512
 ```
 
+## 字典根据键或者值从小到大排序
+
+```python
+dic = {"a": 2, "c": 3, "b": 1}
+
+print(sorted(dic.items(), key=lambda item: item[0])) # 按键
+# [('a', 2), ('b', 1), ('c', 3)]
+
+print(sorted(dic.items(), key=lambda item: item[1])) # 按值
+# [('b', 1), ('a', 2), ('c', 3)]
+```
+
+## 判断以下是什么类型
+
+- `a = (1,)`：元组
+- `b = (1)`：int
+- `c = ("1")`：str
+
+## 一行代码展开该列表
+
+```python
+输入：[[1,2],[3,4],[5,6]] 
+输出：[1,2,3,4,5,6]
+```
+
+```python
+lists = [[1, 2], [3, 4], [5, 6]]
+
+print([item for inner in lists for item in inner])
+```
 
 # 函数
 
