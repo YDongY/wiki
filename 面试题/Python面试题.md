@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T05:15:02.535Z
+date: 2021-03-06T05:28:14.003Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -299,7 +299,7 @@ False
 
 ## `if __name__ = __main__ `的作用
 
-
+[https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8](https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8)
 
 # 异常
 
@@ -494,6 +494,35 @@ print(sorted(list1, key=lambda item: item["age"]))
 ## 一句话解释什么样的语言能够用装饰器
 
 - 函数可以作为参数传递的语言，可以使用装饰器
+
+## map 函数和 reduce 函数
+
+- `map(function, iterable, ...)`：返回一个将 function 应用于 iterable 中每一项并输出其结果的迭代器
+
+```python
+def func(n):
+    return n*2
+    
+print(map(func, [1, 2, 3])) # <map object at 0x7fe03a02f3a0>
+print(list(map(func, [1, 2, 3]))) # [2, 4, 6]
+
+res = map(lambda n: n*2, [1, 2, 3])
+```
+
+- `functools.reduce(function, iterable[, initializer])`：将两个参数的 function 从左至右积累地应用到 iterable 的条目，以便将该可迭代对象缩减为单一的值
+
+```python
+from functools import reduce
+res = reduce(lambda x, y: x+y, [1, 2, 3, 4, 5])
+print(res)  # 15
+
+# 相当于计算 ((((1+2)+3)+4)+5) 的值
+```
+
+> https://docs.python.org/zh-cn/3/library/functions.html#map
+> https://docs.python.org/zh-cn/3/library/functools.html?highlight=reduce#functools.reduce
+{.is-success}
+
 
 # 面向对象
 
