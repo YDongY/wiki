@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-05T15:15:17.849Z
+date: 2021-03-06T02:41:17.013Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -135,10 +135,13 @@ class C:
 
 ## 说明异常模块中关键字的相关含义
 
-- try 
-- execpt
-- else 
-- finally 
+- try ：try 子句包含试图产生异常的代码
+- execpt：根据异常类型捕获 try 子句中产生异常
+- else ：当 try 子句中没有任何异常出现时，执行 else 子句中的代码
+- finally ：收尾工作，无论是否产生异常都会执行 finally 子句中的代码。
+
+> https://docs.python.org/zh-cn/3/tutorial/errors.html#handling-exceptions
+{.is-success}
 
 # 文件操作
 
