@@ -2,13 +2,35 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T05:28:14.003Z
+date: 2021-03-06T05:39:54.141Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
 ---
 
 # Python 特性
+
+## Python 是静态还是动态类型？是强类型还是弱类型？
+
+Python 属于动态强类型语言
+
+- 动态类型语言是指在运行期间才去做数据类型检查的语言
+- 强类型不会发生隐式转换
+
+
+例如：Python 与 JS 对比计算 `1+"a"` 运算结果
+
+```python
+>>> 1 + "a"
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+```javascript
+> 1 + "a"
+< "1a"
+```
 
 ## 列出 5 个标准库
 
@@ -300,6 +322,34 @@ False
 ## `if __name__ = __main__ `的作用
 
 [https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8](https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8)
+
+## 你知道右加么（`__radd__`）
+
+`__radd__` ：当可计算对象处于 + 号右侧时会调用
+
+```python
+class MyRadd(object):
+    def __init__(self, value):
+        self.val = value
+
+    def __add__(self, other):
+        return self.val + other
+
+    def __radd__(self, other):
+        return other + self.val
+
+
+if __name__ == '__main__':
+    my_r = MyRadd(10)
+
+    ret1 = 10 + my_r # 执行 __radd__ 方法
+
+    ret2 = my_r + 10 # 执行 __add__ 方法
+```
+
+## 连接字符串用 join 还是 +
+
+
 
 # 异常
 
