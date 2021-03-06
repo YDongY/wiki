@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T02:41:17.013Z
+date: 2021-03-06T03:55:43.075Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -84,8 +84,15 @@ class C:
 > https://docs.python.org/zh-cn/3/library/stdtypes.html#text-sequence-type-str
 {.is-success}
 
+## 列举三条 PEP8 的编码规范
 
-# 输入输出
+- 缩进，用 4 个空格，不要用制表符
+- 换行，一行不超过 79 个字符
+- 运算符前后、逗号后要用空格，但不要直接在括号内使用： `a = f(1, 2) + g(3, 4)`
+- 类和函数的命名要一致，命名类用 `UpperCamelCase`，命名函数与方法用 `lowercase_with_underscores`。命名方法中第一个参数总是用 `self` 
+
+
+# 基本语法
 
 ## Python 中生成随机整数、随机小数、0~1之间小数的方法
 
@@ -127,9 +134,146 @@ class C:
 >>> mul(10)
 100
 ```
- 
 
-# 条件循环
+## Python 中交换两个值
+
+```python
+a = 10
+b = 20
+```
+
+```python
+# 1.直接交换
+a, b = b, a
+
+# 2.加法
+a = a + b
+b = a - b
+a = a -b
+
+# 3.异或
+a = a ^ b
+b = a ^ b
+a = a ^ b
+```
+
+## 下面代码输出结果是多少
+
+```python
+[1,2,3] + [4,5,6]
+```
+
+```python
+[1, 2, 3] + [4, 5, 6] = [1, 2, 3, 4, 5, 6]
+```
+
+## 简述 all() 和 any() 方法
+
+- `any()`：方法接受一个 iterable，如果任一项为真值则返回 True。 如果 iterable 为空，返回 False。等价于：
+
+```python
+def any(iterable):
+    for element in iterable:
+        if element:
+            return True
+    return False
+```
+
+- `all()`：方法接受 一个 iterable，如果 iterable 的所有元素均为真值（或可迭代对象为空）则返回 True 。 等价于:
+
+```python
+def all(iterable):
+    for element in iterable:
+        if not element:
+            return False
+    return True
+```
+
+> https://docs.python.org/zh-cn/3/library/functions.html?highlight=any#any
+> https://docs.python.org/zh-cn/3/library/functions.html?highlight=any#all
+{.is-success}
+
+## 举例说明 zip() 函数的用法
+
+```python
+a = [1, 2, 3]
+b = [4, 5, 6]
+
+print(list(zip(a, b)))  # [(1, 4), (2, 5), (3, 6)]
+print(set(zip(a, b)))  # {(2, 5), (1, 4), (3, 6)}
+print(dict(zip(a, b)))  # {1: 4, 2: 5, 3: 6}
+
+a = [1, 2, 3]
+b = [4, 5]
+
+print(list(zip(a, b)))  # [(1, 4), (2, 5)]
+print(set(zip(a, b)))  # {(2, 5), (1, 4)}
+print(dict(zip(a, b)))  # {1: 4, 2: 5}
+
+a = [1, 2, 3]
+b = [4, 5]
+c = [7, 8]
+
+print(list(zip(a, b, c)))  # [(1, 4, 7), (2, 5, 8)]
+print(set(zip(a, b, c)))  # {(2, 5, 8), (1, 4, 7)}
+print(dict(zip(a, b, c)))  # error
+```
+
+> https://docs.python.org/zh-cn/3/library/functions.html#zip
+{.is-success}
+
+## Python 实现一个斐波那契数列
+
+```python
+def fib(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a+b
+    return a
+    
+def fib2(n):
+    if n <= 1:
+        return n
+    return fib2(n-1) + fib2(n-2)
+
+fib3 = lambda n: n if n <= 1 else fib3(n-1)+fib3(n-2)
+print(fib3(10))
+```
+
+## 用 Python 实现一个二分查找的函数。
+
+```python
+
+```
+
+## Python 递归的最大层数？如何查看
+
+```python
+>>> import sys
+>>> sys.getrecursionlimit()
+1000
+```
+
+> https://docs.python.org/zh-cn/3/library/sys.html?highlight=sys%20setrecursionlimit#sys.setrecursionlimit
+> https://docs.python.org/zh-cn/3/library/sys.html?highlight=sys%20setrecursionlimit#sys.getrecursionlimit
+{.is-success}
+
+## is 和 == 的区别
+
+is 比较变量地址，即变量是否引用同一个对象，== 比较的是变量所引用对象的值是否相同
+
+```python
+>>> a = [1, 2, 3]
+>>> b = [1, 2, 3]
+>>> a == b
+True
+>>> a is b
+False
+>>> id(a)
+140451796371968
+>>> id(b)
+140451796370240
+```
 
 # 异常
 
@@ -141,6 +285,27 @@ class C:
 - finally ：收尾工作，无论是否产生异常都会执行 finally 子句中的代码。
 
 > https://docs.python.org/zh-cn/3/tutorial/errors.html#handling-exceptions
+{.is-success}
+
+## 自定义异常
+
+```python
+class InputError(Exception):
+    '''当输出有误时，抛出此异常'''
+    #自定义异常类型的初始化
+    def __init__(self, value):
+        self.value = value
+    # 返回异常类对象的说明信息
+    def __str__(self):
+        return ("{} is invalid input".format(repr(self.value)))
+   
+try:
+    raise InputError(1) # 抛出 MyInputError 这个异常
+except InputError as err:
+    print('error: {}'.format(err))
+```
+
+> https://docs.python.org/zh-cn/3/tutorial/errors.html#user-defined-exceptions
 {.is-success}
 
 # 文件操作
@@ -177,6 +342,8 @@ print(id(b)) # 140451796696512
 
 ## 字典根据键或者值从小到大排序
 
+- 使用 sorted 函数
+
 ```python
 dic = {"a": 2, "c": 3, "b": 1}
 
@@ -186,6 +353,34 @@ print(sorted(dic.items(), key=lambda item: item[0])) # 按键
 print(sorted(dic.items(), key=lambda item: item[1])) # 按值
 # [('b', 1), ('a', 2), ('c', 3)]
 ```
+
+- 使用 zip 函数
+
+```python
+dic = {"a": 2, "c": 3, "b": 1}
+
+print(sorted(zip(dic.keys(),dic.values())))
+# [('a', 2), ('b', 1), ('c', 3)]
+
+print(sorted(zip(dic.values(),dic.keys())))
+# [(1, 'b'), (2, 'a'), (3, 'c')]
+```
+
+## 如何反向迭代序列
+
+```python
+li = [1, 2, 3, 4]
+
+for i in reversed(li):
+    print(i, end=" ")
+    
+for i in sorted(li, reverse=True):
+    print(i, end=" ")
+```
+
+> https://docs.python.org/zh-cn/3/library/functions.html#reversed
+{.is-success}
+
 
 ## 判断以下是什么类型
 
