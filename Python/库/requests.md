@@ -1,10 +1,10 @@
 ---
-title: requests
+title: requests 库
 description: 
 published: true
-date: 2021-02-22T12:34:08.188Z
-tags: 
-editor: undefined
+date: 2021-03-06T05:50:22.423Z
+tags: python, requests, 库
+editor: markdown
 dateCreated: 2021-02-22T10:38:32.413Z
 ---
 
