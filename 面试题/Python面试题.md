@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T03:55:43.075Z
+date: 2021-03-06T04:12:14.052Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -312,6 +312,31 @@ except InputError as err:
 
 ## 简述 with 方法打开处理文件帮我们做了什么
 
+
+## Python 如何删除一个文件
+
+```python
+os.remove(path)
+````
+
+> https://docs.python.org/zh-cn/3/faq/library.html#how-do-i-delete-a-file-and-other-file-questions
+> https://docs.python.org/zh-cn/3/library/os.html#os.remove
+{.is-success}
+
+## Python 如何 copy 一个文件
+
+```python
+shutil.copyfile(src, dst, *, follow_symlinks=True)
+
+import shutil
+shutil.copyfile('./file.txt','./file.txt.bak')
+```
+
+> https://docs.python.org/zh-cn/3/faq/library.html#how-do-i-copy-a-file
+> https://docs.python.org/zh-cn/3/faq/library.html#how-do-i-copy-a-file
+{.is-success}
+
+
 # 模块与包
 
 # 数据类型
@@ -399,6 +424,23 @@ for i in sorted(li, reverse=True):
 lists = [[1, 2], [3, 4], [5, 6]]
 
 print([item for inner in lists for item in inner])
+```
+
+## 请反转字符串 `aStr`
+
+```python
+>>> print('aStr'[::-1])
+rtSa
+```
+
+## 请按照 list1 中元素的 age 由大到小排序
+
+```python
+list1 = [{"name":'a',"age":20},{"name":'b',"age":30},{"name":'c',"age":25}]
+```
+
+```python
+print(sorted(list1, key=lambda item: item["age"]))
 ```
 
 # 函数
