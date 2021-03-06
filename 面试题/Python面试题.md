@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T05:39:54.141Z
+date: 2021-03-06T06:17:52.838Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -31,6 +31,10 @@ TypeError: unsupported operand type(s) for +: 'int' and 'str'
 > 1 + "a"
 < "1a"
 ```
+
+## print 调用 Python 中底层的什么方法
+
+- print 方法默认调用 sys.stdout.write 方法，即往控制台打印字符串
 
 ## 列出 5 个标准库
 
@@ -70,6 +74,10 @@ TypeError: unsupported operand type(s) for +: 'int' and 'str'
 | 不等 | `!=`、`<>`                         | `!=`                            |
 | 编码 | `unicode:字符串`<br>`str:字节序列` | `str:字符串`<br>`byte:字节序列` |
 
+> https://docs.python.org/zh-cn/3/library/2to3.html?highlight=xrange#2to3fixer-xrange
+{.is-success}
+
+
 ## Python 2 和 3 的 range(100) 有什么区别
 
 ```python
@@ -81,6 +89,16 @@ TypeError: unsupported operand type(s) for +: 'int' and 'str'
 >>> range(10)
 range(0, 10)
 ```
+
+## range 和 xrange 的区别
+
+- python2 
+
+两者用法相同，不同的是 range 返回的结果是一个列表，而 xrange 的结果是一个生成器，前者是直接开辟一块内存空间来保存列表，后者是边循环边使用，只有使用时才会开辟内存空间，所以当列表很长时，使用 xrange 性能要比 range 好。
+
+- python3 
+
+遗弃 xrange ，统一使用 range ，同时使用 list 包装 range。使用 Python3 的 range 返回 range 类的实例对象 
 
 ## pass 的作用
 
@@ -126,6 +144,14 @@ class C:
 - 类和函数的命名要一致，命名类用 `UpperCamelCase`，命名函数与方法用 `lowercase_with_underscores`。命名方法中第一个参数总是用 `self` 
 
 
+## 提高 Python 效率的方法
+
+1、使用多进程，充分利用机器的多核性能
+2、对于性能影响较大的部分代码，可以使用 C 或 C++编写
+3、对于 IO 阻塞造成的性能影响，可以使用 IO 多路复用来解决
+4、尽量使用 Python 的内建函数
+5、尽量使用局部变量
+
 # 基本语法
 
 ## Python 中断言方法举例
@@ -169,7 +195,14 @@ AssertionError
 ```
 
 > https://docs.python.org/zh-cn/3/library/random.html#module-random
+> https://docs.python.org/zh-cn/3/faq/library.html#how-do-i-generate-random-numbers-in-python
 {.is-success}
+
+## 输入某年某月某日，判断这一天是这一年的第几天
+
+```python
+
+```
 
 ## 用 lambda 表达式实现两个数相乘
 
@@ -321,7 +354,7 @@ False
 
 ## `if __name__ = __main__ `的作用
 
-[https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8](https://ydongy.cn/zh/Python/%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97#__name__-__main__%E4%BD%9C%E7%94%A8)
+[导入模块](/Python/导入模块)
 
 ## 你知道右加么（`__radd__`）
 
@@ -430,6 +463,13 @@ shutil.copyfile('./file.txt','./file.txt.bak')
 > https://docs.python.org/zh-cn/3/faq/library.html#how-do-i-copy-a-file
 {.is-success}
 
+## 4G 内存怎么读取一个 5G 的数据
+
+## read、readline 和 readlines 的区别?
+
+- read:读取整个文件。
+- readline：读取下一行，使用生成器方法。
+- readlines：读取整个文件到一个迭代器以供我们遍历。
 
 # 模块与包
 
@@ -575,6 +615,10 @@ print(res)  # 15
 
 
 # 面向对象
+
+## 列出几个常用魔法方法的主要用途
+
+[魔法方法](/Python/魔法方法)
 
 # 内存管理与垃圾回收
 # 正则表达式
