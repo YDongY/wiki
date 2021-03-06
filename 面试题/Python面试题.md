@@ -2,7 +2,7 @@
 title: Python 面试题
 description: 人生苦短，我用 Python
 published: true
-date: 2021-03-06T04:12:14.052Z
+date: 2021-03-06T05:15:02.535Z
 tags: python, 面试题
 editor: markdown
 dateCreated: 2021-03-04T09:14:14.448Z
@@ -47,6 +47,18 @@ dateCreated: 2021-03-04T09:14:14.448Z
 | 输入 | `raw_input()`                      | `input()`                       |
 | 不等 | `!=`、`<>`                         | `!=`                            |
 | 编码 | `unicode:字符串`<br>`str:字节序列` | `str:字符串`<br>`byte:字节序列` |
+
+## Python 2 和 3 的 range(100) 有什么区别
+
+```python
+# py2：返回一个 list 对象
+>>> range(10)
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 
+
+# py3：返回一个 range 对象
+>>> range(10)
+range(0, 10)
+```
 
 ## pass 的作用
 
@@ -93,6 +105,16 @@ class C:
 
 
 # 基本语法
+
+## Python 中断言方法举例
+
+```python
+>>> a = 1
+>>> assert a > 2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AssertionError
+```
 
 ## Python 中生成随机整数、随机小数、0~1之间小数的方法
 
@@ -275,6 +297,10 @@ False
 140451796370240
 ```
 
+## `if __name__ = __main__ `的作用
+
+
+
 # 异常
 
 ## 说明异常模块中关键字的相关含义
@@ -311,6 +337,24 @@ except InputError as err:
 # 文件操作
 
 ## 简述 with 方法打开处理文件帮我们做了什么
+
+- 传统方式对文件进行操作，首先打开文件，然后进行处理，最后关闭文件资源，处理期间如果遇到任何异常情况，最终也应该关闭文件资源。代码实现如下：
+
+```python
+try:
+    f = open("file.txt")
+except:
+    pass
+finally:
+    f.close()
+```
+
+- 当使用 with 上下文管理器打开文件时，其内部的 `__enter__` 方法和 `__exit__` 方法会处理打开文件和关闭文件
+
+```python
+with open("file.txt") as f:
+    pass
+```
 
 
 ## Python 如何删除一个文件
@@ -447,9 +491,43 @@ print(sorted(list1, key=lambda item: item["age"]))
 
 ## `*agrs`和 `**kwargs` 是什么意思
 
+## 一句话解释什么样的语言能够用装饰器
+
+- 函数可以作为参数传递的语言，可以使用装饰器
+
 # 面向对象
 
 # 内存管理与垃圾回收
+# 正则表达式
+
+## `(.*)` 和 `(.*?)`匹配区别
+
+- `.`：在默认模式，匹配除了换行的任意字符
+- `*`：对它前面的正则式匹配0到任意次重复，尽量多的匹配字符串。`ab*` 会匹配 `'a'`、`'ab'`或者 `'a'` 后面跟随任意个 `'b'`。
+- `?`：对它前面的正则式匹配0到1次重复。 `ab?` 会匹配 `'a'` 或者 `'ab'`。
+
+- `(.*)`是贪婪匹配，会把满足正则的尽可能多的往后匹配
+- `(.*?)`是非贪婪匹配，会把满足正则的尽可能少匹配
+ 
+```python
+import re
+s = "<a> b <c>"
+res1 = re.findall("<(.*)>", s)
+print(res1)  # ['a> b <c']
+res2 = re.findall("<(.*?)>", s)
+print(res2)  # ['a','b']
+```
+
+> https://docs.python.org/zh-cn/3/library/re.html#regular-expression-syntax
+{.is-info}
+
+
+## Python 正则中 search()  和 match() 区别
+
+- `match()` 函数只检测 re 是不是在 string 的开始位置匹配
+- `search()`会扫描整个 string 查找匹配
+
+也就是说 match() 只有在 0 位置匹配成功的话才有返回，如果不是开始位置匹配成功的话，match() 就返回 none
 
 # 系统编程
 
