@@ -1,9 +1,9 @@
 ---
-title: 15-typedef
+title: 08-typedef
 description: 
 published: true
-date: 2021-03-09T09:04:00.922Z
-tags: 
+date: 2021-03-09T09:04:56.149Z
+tags: c
 editor: markdown
 dateCreated: 2021-02-21T14:39:24.844Z
 ---
