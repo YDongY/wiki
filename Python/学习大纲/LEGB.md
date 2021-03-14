@@ -1,21 +1,32 @@
 ---
-title: 27. LEGB
+title: 27. 作用域和命名空间
 description: 
 published: true
-date: 2021-03-14T07:06:28.827Z
+date: 2021-03-14T07:17:24.858Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-14T07:05:22.501Z
 ---
 
-# LEGB
+# namespace（命名空间）
+
+namespace 是一个从名字到对象的映射
+
+在不同时刻创建的命名空间拥有不同的生存期。包含**内置名称的命名空间**是在 Python 解释器启动时创建的，永远不会被删除
+
+**模块的全局命名空间**在模块定义被读入时创建，通常，模块命名空间也会持续到解释器退出
+
+一个**函数的本地命名空间**在这个函数被调用时创建，并在函数返回或抛出一个不在函数内部处理的错误时被删除。
+
+
+## LEGB
 
 - L：Local(function) 函数内的名字空间
 - E-Enclosing function locals 外部嵌套函数的名字空间，闭包
 - G-Global(module) 函数定义所在模块（文件）的名字空间
 - B-Builtin(Python) Python 内置模块的名字空间
 
-# 变量查找顺序
+## 变量查找顺序
 
 - L G
 
@@ -83,3 +94,8 @@ print(var()) # Enclosing
 'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple', 'type', 'vars', 
 'zip']
 ```
+
+# 作用域
+
+> 作用域是一个命名空间可直接访问的 Python 程序的文本区域
+{.is-info}
