@@ -2,7 +2,7 @@
 title: 19. Socket
 description: 
 published: true
-date: 2021-03-13T04:57:29.146Z
+date: 2021-03-14T03:10:02.260Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-13T04:39:49.209Z
@@ -275,11 +275,11 @@ if __name__ == '__main__':
 > 注意：浏览器请求的过程其实也是需要三次握手和四次挥手，因为他们传输层是 TCP。
 {.is-warning}
 
-![socket-1.png](/python/学习大纲/网络编程/socket-1.png)
+![socket-1.png](/assets/python/学习大纲/网络编程/socket-1.png)
 
-![socket-2.png](/python/学习大纲/网络编程/socket-2.png)
+![socket-2.png](/assets/python/学习大纲/网络编程/socket-2.png)
 
-![socket-3.png](/python/学习大纲/网络编程/socket-3.png)
+![socket-3.png](/assets/python/学习大纲/网络编程/socket-3.png)
 
 ## 伪静态响应服务器
 
@@ -308,9 +308,9 @@ def request_handler(client_socket):
     client_socket.close()
 ```
 
-![socket-4.png](/python/学习大纲/网络编程/socket-4.png)
+![socket-4.png](/assets/python/学习大纲/网络编程/socket-4.png)
 
-![socket-5.png](/python/学习大纲/网络编程/socket-5.png)
+![socket-5.png](/assets/python/学习大纲/网络编程/socket-5.png)
 
 通过两个案例应该了解了 HTTP 协议请求响应的过程，我们其实就明白了一个 Web 应用的本质就是：
 
@@ -328,7 +328,7 @@ def request_handler(client_socket):
 
 下面一张图是符合 WSGI 标准的请求流程：
 
-![socket-6.png](/python/学习大纲/网络编程/socket-6.png)
+![socket-6.png](/assets/python/学习大纲/网络编程/socket-6.png)
 
 接下来我们来看一下 WSGI 的定义：
 
