@@ -2,7 +2,7 @@
 title: Meta 选项
 description: 
 published: true
-date: 2021-03-19T09:51:06.938Z
+date: 2021-03-19T14:02:12.030Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-19T09:01:36.999Z
@@ -28,6 +28,8 @@ class Student(CommonInfo):
 
 # app_label
 
+如果定义模型的应用不在 INSTALLED_APPS 中，必须指定所属的应用
+
 # base_manager_name
 
 # db_table
@@ -51,8 +53,7 @@ class Student(modes.Model):
 
 # default_related_name
 
-从关联对象到这个对象的关系默认使用的名称。默认为 `_set`。
-
+关联的对象回指这个模型默认使用的名称。默认为 `<model_name>_set`。
 
 # get_latest_by
 
@@ -68,6 +69,13 @@ get_latest_by = "order_date"
 get_latest_by = ['-priority', 'order_date']
 ```
 
+# managed
+
+默认为 True，即让 Django 在迁移中创建适当的数据库表，并在执行 flush 管理命令时把表删除。
+
+# order_with_respect_to
+
+标记对象为可排序的，排序依据是指定的字段。
 
 # ordering
 
