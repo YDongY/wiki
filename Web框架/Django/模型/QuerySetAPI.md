@@ -2,20 +2,62 @@
 title: QuerySet API
 description: 
 published: true
-date: 2021-03-19T14:10:11.749Z
+date: 2021-03-19T14:30:24.239Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-24T11:01:54.344Z
 ---
 
-# 查询
+# 检索对象
 
 > [QuerySet API 参考](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#)
 {.is-info}
 
-从数据库检索对象，要通过模型类的 Manager 构建一个 QuerySet。一个 QuerySet 代表来自数据库中对象的一个集合。它可以有 0 个，1 个或者多个。
+若想从数据库中检索对象，通过模型类的 Manager 实例构建一个 QuerySet。QuerySet 实例表示数据库中对象的集合。在 QuerySet 上可调用零个、一个或多个过滤器（filter）。
 
-每个模型至少有一个 Manager，默认名称是 objects。
+过滤器根据指定参数缩窄查询结果。用 SQL 术语来说，QuerySet 相当于 SELECT 语句，而过滤器相当于限制子句，如 WHERE 或 LIMIT。
+
+QuerySet 通过模型的 Manager 得到。一个模型至少有一个 Manager，默认名为 objects。Manager 可以直接通过模型类访问，例如：
+
+```python
+>>> Blog.objects
+<django.db.models.manager.Manager object at ...>
+>>> b = Blog(name='Foo', tagline='Bar')
+>>> b.objects
+Traceback:
+    ...
+AttributeError: "Manager isn't accessible via Blog instances."
+```
+
+> Managers 只能通过模型类访问，而不是通过模型实例，目的是强制分离 “表级” 操作和 “行级” 操作
+{.is-warning}
+
+- 过滤后的 QuerySet 是独一无二的，与之前的 QuerySet 没有任何联系。筛选后得到的 QuerySet 是独立的、截然不同的，可以存储、使用和复用。
+- QuerySet 是惰性的，创建 QuerySet 不涉及任何数据库活动。你可以一直串联过滤器，Django 并不会执行查询；真正的查询等到求值 QuerySet 时才执行。下面举个例子：
+
+```python
+>>> q = Entry.objects.filter(headline__startswith="What")
+>>> q = q.filter(pub_date__lte=datetime.date.today())
+>>> q = q.exclude(body_text__icontains="food")
+>>> print(q)
+```
+
+## 什么时候 QuerySet 被执行
+
+QuerySet 本身可以被构造，过滤，切片，或者复制赋值等，是无需访问数据库的。只有在你需要从数据库取出数据或者，向数据库存入数据时才需要访问数据库
+
+- `迭代`。 一个 QuerySet 是可迭代的，当你第一次迭代它时，它就会执行其数据库查询
+- `切片`。切片一个未执行的 QuerySet 通常会返回另一个未执行的 QuerySet，但如果使用切片语法的 step 参数，Django 会执行数据库查询，并返回一个列表。切片一个已经执行过的 QuerySet 也会返回一个列表
+- `Pickle 序列化/缓存`。如果你 pickle 序列化一个 QuerySet，这将迫使所有结果在 pickle 序列化之前加载到内存中
+- `repr()`。 当你调用 repr() 时，所在 QuerySet 会被执行
+- `len()`。 当你调用 len() 时，会执行 QuerySet
+- `list()`。 通过调用 list() 强制执行 QuerySet
+
+```python
+entry_list = list(Entry.objects.all())
+```
+
+- `bool()`。 在布尔语境中测试 QuerySet，如使用 bool()、or、and 或 if 语句，将导致查询被执行
 
 # 返回新 QuerySet 的方法
 
@@ -236,11 +278,6 @@ from django.utils import timezone
 
 # 查找有关 1 号人物的所有的书籍
 books = set()
-
->>> 
->>> for p in ps:
-...     p.book
-... 
 
 for p in PeopleInfo.objects.filter(id__lt=8).select_related('book'):
     # 如果没有 select_related，将为每个对象创建一个数据库查询
