@@ -2,7 +2,7 @@
 title: FileField
 description: 
 published: true
-date: 2021-03-21T12:57:33.129Z
+date: 2021-03-21T15:48:29.831Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T11:01:40.177Z
@@ -10,7 +10,11 @@ dateCreated: 2021-03-21T11:01:40.177Z
 
 # FileField
 
-FileField 是一个文件上传字段。此字段的默认表单窗口小部件是    ClearableFileInput。
+FileField 是一个文件上传字段。此字段的默认表单窗口小部件是 ClearableFileInput。
+
+> 该字段不允许使用 primary_key 属性
+{.is-warning}
+
 
 ```python
 field_name = models.FileField（upload_to = None，max_length = 254，** options）
@@ -18,24 +22,22 @@ field_name = models.FileField（upload_to = None，max_length = 254，** options
 
 FileField 有一个可选参数：
 
-- upload_to：提供了一种设置上传目录和文件名的方法
+- upload_to：文件上传后的保存文职
 
 ```python
 class MyModel(models.Model): 
 
-	# file will be uploaded to MEDIA_ROOT / uploads 
+	# ＃文件上传到 MEDIA_ROOT/uploads
 	upload = models.FileField(upload_to ='uploads/') 
 
-	# or... 
-	# file will be saved to MEDIA_ROOT / uploads / 2015 / 01 / 30 
-	upload = models.FileField(upload_to ='uploads/% Y/% m/% d/') 
+	# ＃文件上传到 MEDIA ROOT/uploads/2017/12/30
+	upload = models.FileField(upload_to ='uploads/%Y/%m/%d/') 
 ```
 
-> 使用默认的 `FileSystemStorage` ，则字符串值将附加到 MEDIA_ROOT 路径中，以形成本地文件系统上将存储上传文件的位置
+> MEDIA_ROOT 在 settings.py 中设置，upload_to 所指定的路径将会拼接在 MEDIA_ROOT 之后 。
 {.is-info}
 
-
-upload_to 也可以是可调用的，例如函数：
+upload_to 也可以是可调用的函数，且必须接受两个参数，并返回一个 Unix 风格的路径（带斜线）
 
 ```python
 def user_directory_path(instance, filename): 
@@ -45,7 +47,17 @@ def user_directory_path(instance, filename):
 
 class MyModel(models.Model): 
 	upload = models.FileField(upload_to = user_directory_path) 
+```
 
+- storage：负责文件存储的 Python 类，用于存储和提取文件。类 `django.core.files.storage.FileSystemStorage` 提供了基本的文件管理功能。例如下面代码，无论在 settings.py 里面如何设置 MEDIA_ROOT 都会按照所指定的路径存储被上传的文件：
+
+```python
+from django.core.files.storage import FileSystemStorage
+
+fs = FileSystemStorage(location='/meida/documents')
+
+class GeeksModel5(models.Model):
+    photo = models.FileField(storage=fs)
 ```
 
 # 案例 
