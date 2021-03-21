@@ -2,7 +2,7 @@
 title: 执行原生 SQL 查询
 description: 
 published: true
-date: 2021-03-19T16:05:18.290Z
+date: 2021-03-21T17:13:43.347Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-19T16:04:49.849Z
@@ -15,14 +15,16 @@ dateCreated: 2021-03-19T16:04:49.849Z
 
 Django 允许你用两种方式执行原生 SQL 查询：
 
-1. 使用 `Manager.raw()` 来执行原生查询并返回模型实例，
+1. 使用 `Manager.raw()` 来执行原生查询并返回模型实例
 2. 完全不用模型层直接执行自定义 SQL。
 
-# 执行原生查询
 
-`Manager.raw(raw_query, params=None, translations=None)`：
+# Manager.raw()
 
-该方法接受一个原生 SQL 查询语句，执行它，并返回一个 `django.db.models.query.RawQuerySet` 实例。这个 RawQuerySet 能像普通的 QuerySet 一样被迭代获取对象实例
+```python
+Manager.raw(raw_query, params=None, translations=None)
+```
+该方法接受一个原生 SQL 查询语句，执行它返回一个 `django.db.models.query.RawQuerySet` 实例。这个 RawQuerySet 能像普通的 QuerySet 一样被迭代获取对象实例
 
 例如：
 
@@ -40,10 +42,12 @@ John Smith
 Jane Jones
 ```
 
+虽然 Django 允许用户在 raw() 方法中执行任意 SQL 语句，但是 Django 希望 SQL 语句能够返回一行或多行数据，如果执行结束没有返回任何数据，raw() 方法将会抛出异常
+
 > 注意：① Django 不会对传给 .raw() 的 SQL 语句做任何检查 ② 若你在 MySQL 上执行查询，可能会因为强制类型导致不可预料的后果。若你用一个整数值查询一个字符串列，MySQL 会执行比较前将表中所有数据强制转为整数
 {.is-warning}
 
-# 将查询字段映射为模型字段
+## 模型字段映射
 
 - 指定模型字段名
 
@@ -68,7 +72,7 @@ Jane Jones
 >>> Person.objects.raw('SELECT * FROM some_other_table', translations=name_map)
 ```
 
-# 索引查询
+## 切片索引结果
 
 - 获取第一个结果
 
@@ -82,13 +86,13 @@ Jane Jones
 >>> first_person = Person.objects.raw('SELECT * FROM myapp_person LIMIT 1')[0]
 ```
 
-# 延迟模型字段
-
-- 查询返回的 Person 对象即延迟模型实例，这意味着查询语句中省略的字段按需加载
+## 延迟模型字段
 
 ```shell
 >>> people = Person.objects.raw('SELECT id, first_name FROM myapp_person')
 ```
+
+上述，查询返回的 Person 对象即延迟模型实例
 
 ```shell
 >>> for p in Person.objects.raw('SELECT id, first_name FROM myapp_person'):
@@ -99,12 +103,10 @@ John Smith
 Jane Jones
 ```
 
-表面上，看起来该查询同时检出了 first name 和 last name。然而，这个例子实际上执行了三次查询。只有 first names 是由 raw() 查询检出的 —— last names 是在它们被打印时按需检出。
+表面上，看起来该查询同时检出了 first_name 和 last_name。然而，这个例子实际上执行了三次查询。只有 first_name 是由 raw() 查询检出的 —— last_name 是在它们被打印时按需检出。
 
 
-# 添加注释
-
-可以执行带有模型中未定义字段的查询语句
+## 使用聚合函数
 
 ```shell
 >>> people = Person.objects.raw('SELECT *, age(birth_date) AS age FROM myapp_person')
@@ -115,11 +117,7 @@ Jane is 42.
 ...
 ```
 
-> 可以用 Func() 表达式 避免使用原生 SQL 去计算注释。
-{.is-info}
-
-
-# 将参数传给 raw()
+## raw() 传递参数
 
 如果需要执行参数化的查询，可以使用 raw() 的 params 参数:
 
@@ -127,7 +125,6 @@ Jane is 42.
 >>> lname = 'Doe'
 >>> Person.objects.raw('SELECT * FROM myapp_person WHERE last_name = %s', [lname])
 ```
-
 
 > 不要对原生查询或 SQL 字符串中的引号占位符使用字符串格式化！
 >```shell
@@ -139,10 +136,9 @@ Jane is 42.
 >>>> query = "SELECT * FROM myapp_person WHERE last_name = '%s'"
 >```
 
+# 自定义 SQL
 
-# 直接执行自定义 SQL
-
-对象 `django.db.connection` 代表默认数据库连接。要使用这个数据库连接，调用 `connection.cursor()` 来获取一个指针对象。然后，调用 `cursor.execute(sql, [params])` 来执行该 SQL 和 `cursor.fetchone()`，或 `cursor.fetchall()` 获取结果数据。
+`django.db.connection` 对象提供了数据库连接操作。使用 `connection.cursor()` 方法可以得到一个游标对象。调用 `cursor.execute(sql, [params])` 方法用于执行指定 SQL 语句， 使用 `cursor.fetchone()`，或 `cursor.fetchall()` 方法可以得到一个或全部结果。
 
 例如:
 
@@ -169,15 +165,15 @@ cursor.execute("SELECT foo FROM bar WHERE baz = '30%'")
 cursor.execute("SELECT foo FROM bar WHERE baz = '30%%' AND id = %s", [self.id])
 ```
 
-若你同时使用不止一个数据库，你可以使用 `django.db.connections` 获取指定数据库的连接（和指针）。 `django.db.connections` 是一个类字典对象，它允许你通过连接别名获取指定连接:
+如果当前工程包含多个数据库，可以使用 `django.db.connections` 获取指定数据库的连接，例如：连接连接数据库 polls：
 
 ```python
 from django.db import connections
-with connections['my_db_alias'].cursor() as cursor:
+with connections['polls'].cursor() as cursor:
 				pass
 ```
 
-默认情况下，Python DB API 返回的结果不会包含字段名，这意味着你最终会收到一个 list，而不是一个 dict。要追求较少的运算和内存消耗，你可以以 dict 返回结果，通过使用如下的玩意:
+默认情况下，Python DB API 返回的结果只是数据库中所有字段的值也就是一个数值的列表，而不是一个同时包含字段名与宇段值的字典，为了使返回的数据更方便使用，可以使用下面方法将返回结果转换为字典：
 
 ```python
 def dictfetchall(cursor):
@@ -219,4 +215,15 @@ def namedtuplefetchall(cursor):
 54360982
 >>> results[0][0]
 54360982
+```
+
+# 执行存储过程
+
+```python
+CursorWrapper . callproc(procname , params=None, kparams=None)
+```
+
+```python
+with connection.cursor() as cursor:
+    cursor.callproc('test_procedure', [1, 'test'])
 ```
