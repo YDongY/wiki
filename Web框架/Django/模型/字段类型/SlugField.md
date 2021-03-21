@@ -2,7 +2,7 @@
 title: SlugField
 description: 
 published: true
-date: 2021-03-21T12:01:03.044Z
+date: 2021-03-21T13:01:22.395Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T12:01:03.044Z
@@ -24,7 +24,7 @@ https://www.geeksforgeeks.org/add-the-slug-field-inside-django-model/
 
 在这里，最后一个数据 `add-the-slug-field-inside-django-model` 是 slug
 
-SlugField具有以下可选参数：
+SlugField 具有以下可选参数：
 
 - `max_length`：默认长度 50
 - `allow_unicode`：如果为 True，则该字段除了接受 ASCII 字母外，还接受 Unicode 字母。默认为 False。
