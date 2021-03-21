@@ -2,7 +2,7 @@
 title: Meta 选项
 description: 
 published: true
-date: 2021-03-19T14:02:12.030Z
+date: 2021-03-21T16:53:31.081Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-19T09:01:36.999Z
@@ -28,7 +28,7 @@ class Student(CommonInfo):
 
 # app_label
 
-如果定义模型的应用不在 INSTALLED_APPS 中，必须指定所属的应用
+如果模型定义没有注册到 INSTALLED_APPS ，那么就必须使用 `app_label` 选项在 Meta 类指定所属的应用程序名字
 
 # base_manager_name
 
@@ -112,9 +112,31 @@ ordering = ['-pub_date', 'author'] # 按 pub_date 降序，然后按 author 升�
 
 # indexes
 
+用来定义数据库索引，形式如下：
+
+```python
+class Customer(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['last_name', 'first_name']),
+            models.Index(fields=['first_name'], name='first_name_idx')
+        ]
+```
+
 # unique_together
 
-创建联合唯一
+为数据库表设置联合主键，形式如下：
+
+```python
+unique_together = (("driver", "restaurant"),)
+```
+
+联合主键是一个由元组组成的元组，每一个元组中的字段在数据库中的值的组合必须是唯一的
+
+如果只有一个联合主键，可以简化 unique_together，例如
 
 ```python
 unique_together = ['driver', 'restaurant']
@@ -173,14 +195,3 @@ verbose_name_plural = "stories"
 ## label_lower
 
 模型的表示，返回 `app_label.model_name`，例如 `'polls.question'`。
-
-
-
-
-
-
-
-
-
-
-
