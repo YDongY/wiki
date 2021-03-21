@@ -2,7 +2,7 @@
 title: DecimalField
 description: 
 published: true
-date: 2021-03-21T12:56:22.993Z
+date: 2021-03-21T13:07:09.407Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T10:39:07.549Z
@@ -32,7 +32,7 @@ models.DecimalField（...，max_digits = 5，decimal_places = 2）
 创建一个应用，在 models 下面添加以下代码：
 
 ```python
-class GeeksModel2(models.Model):
+class GeeksModel(models.Model):
     geeks_field = models.DecimalField(max_digits=5, decimal_places=2)
 ```
 
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='GeeksModel2',
+            name='GeeksModel',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('geeks_field', models.DecimalField(decimal_places=2, max_digits=5)),
