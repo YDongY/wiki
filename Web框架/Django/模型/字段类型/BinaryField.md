@@ -2,7 +2,7 @@
 title: BinaryField
 description: 
 published: true
-date: 2021-03-21T09:04:17.695Z
+date: 2021-03-21T12:53:55.065Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T08:54:50.662Z
@@ -72,19 +72,3 @@ geek_object.save()
 由于 editable = False ，所以我们无法通过后台管理进行创建数据。如果尝试使用 editable=True 它来使其可编辑，则会产生意外错误
 
 ![](https://media.geeksforgeeks.org/wp-content/uploads/20191005130550/binaryfield-editable-django-models.png)
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
-
