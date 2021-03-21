@@ -2,7 +2,7 @@
 title: ImageField
 description: 
 published: true
-date: 2021-03-21T12:59:50.341Z
+date: 2021-03-21T13:06:15.916Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T11:14:35.564Z
@@ -42,12 +42,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapp', '0004_geeksmodel4'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GeeksModel5',
+            name='GeeksMode',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('geeks_field', models.FileField(upload_to='')),
