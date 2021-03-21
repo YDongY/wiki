@@ -2,7 +2,7 @@
 title: TimeField
 description: 
 published: true
-date: 2021-03-21T13:02:19.023Z
+date: 2021-03-21T13:04:37.602Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T12:16:01.954Z
@@ -26,7 +26,7 @@ TimeField具有以下额外的可选参数：
 创建一个应用，在 models 下面添加以下代码：
 
 ```python
-class GeeksModel15(models.Model):
+class GeeksModel(models.Model):
     geeks_field = models.TimeField()
 ```
 
