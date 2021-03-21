@@ -2,7 +2,7 @@
 title: BigAutoField
 description: 
 published: true
-date: 2021-03-21T09:04:41.157Z
+date: 2021-03-21T12:52:34.735Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T08:34:34.417Z
@@ -56,18 +56,3 @@ class Migration(migrations.Migration):
 
 > Django 模型最多可以具有一个自动字段，所以必须在第一次迁移时使用 primary_key=True 属性创建 BigAutoField
 {.is-warning}
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
