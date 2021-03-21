@@ -2,7 +2,7 @@
 title: BooleanField
 description: 
 published: true
-date: 2021-03-21T09:03:48.650Z
+date: 2021-03-21T12:54:18.472Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T09:03:48.650Z
@@ -52,18 +52,3 @@ class Migration(migrations.Migration):
 ```
 
 ![booleanfield.png](/assets/web框架/django/模型字段/booleanfield.png)
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
