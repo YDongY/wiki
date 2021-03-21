@@ -2,7 +2,7 @@
 title: CharField
 description: 
 published: true
-date: 2021-03-21T10:13:49.597Z
+date: 2021-03-21T12:55:03.149Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T10:11:19.630Z
@@ -12,7 +12,7 @@ dateCreated: 2021-03-21T10:11:19.630Z
 
 CharField 是一个字符串字段，通常用于存储小字符串，例如名字，姓氏等。要存储较大的文本，请使用 TextField。此字段的默认表单窗口小部件为 TextInput。
 
-CharField有一个额外的必需参数：`max_length`，字段的最大长度（以字符为单位）。max_length 是在数据库层和 Django 的验证中使用 MaxLengthValidator 强制执行的 
+CharField 有一个额外的必需参数：`max_length`，字段的最大长度（以字符为单位）。max_length 是在数据库层和 Django 的验证中使用 MaxLengthValidator 强制执行的 
 
 ```python
 field_name = models.CharField（max_length = 200，** options）
@@ -52,18 +52,3 @@ class Migration(migrations.Migration):
 ```
 
 ![charfield.png](/assets/web框架/django/模型字段/charfield.png)
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
