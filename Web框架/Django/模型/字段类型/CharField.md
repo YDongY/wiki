@@ -2,7 +2,7 @@
 title: CharField
 description: 
 published: true
-date: 2021-03-21T10:12:13.456Z
+date: 2021-03-21T10:13:49.597Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T10:11:19.630Z
@@ -22,7 +22,7 @@ field_name = models.CharField（max_length = 200，** options）
 
 创建一个应用，在 models 下面添加以下代码：
 
-``python
+```python
 class GeeksModel(models.Model):
     geeks_field = models.CharField(max_length=200)
 ```
