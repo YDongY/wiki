@@ -2,7 +2,7 @@
 title: DateField
 description: 
 published: true
-date: 2021-03-21T12:55:57.516Z
+date: 2021-03-21T15:41:03.647Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T10:26:30.604Z
@@ -20,6 +20,8 @@ DateField 具有以下额外的可选参数：
 
 - `auto_now`：每次调用 `Model.save()` 时自动将字段设置为现在。一般用来保存最后修改时间
 - `auto_now_add`：首次创建对象时，将字段自动设置为现在时间，一般用来保存当前时间
+
+如果将日期类型字段的 auto_now 或者 auto_now_add 属性设置为 True ，那么字段的 editable 属性会被自动设置为 False，同时 blank 属性会被自动设置为 True 。
 
 如果希望能够修改此字段设置以下内容，而不要设置 `auto_now_add = True`：
 
