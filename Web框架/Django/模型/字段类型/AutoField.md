@@ -2,7 +2,7 @@
 title: AutoField
 description: 
 published: true
-date: 2021-03-21T08:27:54.690Z
+date: 2021-03-21T12:51:02.994Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T08:27:54.690Z
@@ -25,7 +25,7 @@ class GeeksModel(models.Model):
     pass
 ```
 
-然后再配置文件中注册应用，并执行迁移命令，生成成迁移文件如下：
+然后再配置文件中注册应用，并执行迁移命令，生成迁移文件如下：
 
 ```python
 from django.db import migrations, models
@@ -47,28 +47,3 @@ class Migration(migrations.Migration):
         ),
     ]
 ```
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
-
-
-
-
-
-
-
-
-
-
