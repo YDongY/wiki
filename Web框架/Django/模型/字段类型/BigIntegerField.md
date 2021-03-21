@@ -2,7 +2,7 @@
 title: BigIntegerField
 description: 
 published: true
-date: 2021-03-21T09:04:30.489Z
+date: 2021-03-21T12:53:09.194Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T08:42:12.080Z
@@ -50,18 +50,3 @@ class Migration(migrations.Migration):
 ```
 
 ![](https://media.geeksforgeeks.org/wp-content/uploads/20191005114924/bigintegerfield-django-models-1024x226.png)
-
-# 字段选项
-
-- null
-- blank
-- db_column
-- default
-- help_text
-- primary_key
-- editable
-- error_messages
-- help_text
-- verbose_name
-- validators
-- unique
