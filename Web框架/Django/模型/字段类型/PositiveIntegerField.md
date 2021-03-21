@@ -2,7 +2,7 @@
 title: PositiveIntegerField
 description: 
 published: true
-date: 2021-03-21T13:00:26.856Z
+date: 2021-03-21T13:05:27.625Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-21T11:35:53.953Z
@@ -21,7 +21,7 @@ field_name = models.PositiveIntegerField（** options）
 创建一个应用，在 models 下面添加以下代码：
 
 ```python
-class GeeksModel10(models.Model):
+class GeeksModel(models.Model):
     geeks_field = models.PositiveIntegerField()
 ```
 
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='GeeksModel10',
+            name='GeeksModel',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('geeks_field', models.PositiveIntegerField()),
