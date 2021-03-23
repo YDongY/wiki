@@ -2,7 +2,7 @@
 title: Django 视图
 description: 
 published: true
-date: 2021-03-23T13:04:54.171Z
+date: 2021-03-23T13:10:29.960Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-23T13:01:52.430Z
@@ -505,9 +505,6 @@ def login_required(func):
 class IndexView(View):
     def get(self, request, *args, **kwargs):
         return HttpResponse("index")
-
-    def dispatch(self, request, *args, **kwargs):
-        super(IndexView, self).dispatch(request, *args, **kwargs)
 ```
 
 # 错误处理
