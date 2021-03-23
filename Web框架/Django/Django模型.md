@@ -2,7 +2,7 @@
 title: Django 模型
 description: 
 published: true
-date: 2021-03-23T08:53:34.844Z
+date: 2021-03-23T09:19:27.941Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-27T07:41:11.095Z
@@ -536,20 +536,390 @@ class Comment(models.Model):
     # origin_comment = models.ForeignKey('Comment',on_delete=models.CASCADE,null=True)
 ```
 
+## 外键字段选项
+
+### on_delete
+
+- `CASCADE`：级联操作。如果外键对应的那条数据被删除了，那么这条数据也会被删除
+- `PROTECT`：受保护。即只要这条数据引用了外键的那条数据，那么就不能删除外键的那条数据。
+- `SET_NULL`：设置为空。如果外键的那条数据被删除了，那么在本条数据上就将这个字段设置为空。前提是要指定这个字段可以为空。
+- `SET_DEFAULT`：设置默认值。如果外键的那条数据被删除了，那么本条数据上就将这个字段设置为默认值。前提是要指定这个字段一个默认值。
+- `SET()`：如果外键的那条数据被删除了。那么将会获取 SET 函数中的值来作为这个外键的值。SET 函数可以接收一个可以调用的对象（比如函数或者方法），如果是可以调用的对象，那么会将这个对象调用后的结果作为值返回回去。
+- `DO_NOTHING`：不采取任何行为。一切全看数据库级别的约束。
+
+> 以上这些选项只是 Django 级别的，数据级别依旧是 RESTRICT！但是数据仍然能够被删除，这是因为 Django 发现了外键约束，会优先把所有关联外键的数据删除，然后再把外键所对应的数据删除。
+
+### limit_choices_to
+
+使用 ModelForm 渲染或在管理后台中显示时，限制罗列这个字段的条件（默认为查询集中的所有对象）
+
+```python
+staff_member = models.ForeignKey(
+    User,
+    on_delete=models.CASCADE,
+    limit_choices_to={'is_staff': True},
+)
+```
+
+此时，ModelForm 中的相应字段只会列出 `is_staff=True` 的 User 对象。这对 Django 的管理后台可能有用。结合 Python 的 datetime 模块限制选择的日期范围时可以使用可调用对象。例如：
+
+```python
+def limit_pub_date_choices():
+		return {'pub_date__lte': datetime.date.utcnow()}
+limit_choices_to = limit_pub_date_choices
+```
+
+### related_name
+
+```python
+class User(models.Model):
+    name = models.CharField(max_length=20)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
+
+class Group(models.Model):
+    title = models.CharField(max_length=20)
+```
+
+```python
+>>> User.objects.all()
+<QuerySet [<User: Jack>, <User: Tom>, <User: Mike>]>
+>>> Group.objects.all()
+<QuerySet [<Group: 技术>, <Group: 产品>]>
+```
+
+如果一个 User 想要访问其所在的 Group，那么可以通过 ForeignKey group 来进行访问。
+
+```python
+>>> user = User.objects.get(id=1)
+>>> user.name
+'Jack'
+>>> user.group
+<Group: 技术>
+```
+
+但是如果一个 Group 想要访问其所有的 User 怎么办？
+
+1. 可以通过下面的方法：`模型名字小写_set`
+
+```python
+>>> group = Group.objects.get(id=1)
+>>> group.title
+'技术'
+>>> group.user_set.all()
+<QuerySet [<User: Jack>, <User: Tom>]>
+```
+
+2. 给 ForeignKey 增加 related_name 属性，相当于替代 user_set
+
+```python
+class User(models.Model):
+    name = models.CharField(max_length=20)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, related_name='users')
+
+>>> group = Group.objects.get(id=1)
+>>> group.title
+'技术'
+>>> group.users.all() # 使用 related_name
+<QuerySet [<User: Jack>, <User: Tom>]>
+```
+
+> 如果你不希望创建一个反向关系，可以将 `related_name` 设置为 `'+'` 或者以 `'+'` 结束
+{.is-warning}
 
 
+##@ related_query_name
+
+目标模型中反向过滤器的名称。
+
+```python
+# 规则：ForeignKey 关联字段__关联模型字段
+>>> group = Group.objects.filter(user__name='Jack')
+>>> group
+<QuerySet [<Group: 技术>]>
+```
+
+如果设置了 related_name = 'users' 那么上例代码将改成如下：
+
+```python
+# 使用 related_name = 'users'
+>>> group = Group.objects.filter(users__name='Jack')
+>>> group
+<QuerySet [<Group: 技术>]>
+```
+
+其次，related_name 的值也默认是 related_query_name 的值。但是 related_query_name 也可以将查询的反转名字修改成其他的名字，比如修改为 users2：
+
+```python
+# 使用 related_query_name = 'users2'
+>>> group = Group.objects.filter(users2__name='Jack')
+>>> group
+<QuerySet [<Group: 技术>]>
+```
+
+### to_field
+
+指定关联对象的字段。默认情况下，Django 使用相关对象的主键。如果引用了其他字段，这个字段必须是 `unique=True`。
+
+```python
+class User(models.Model):
+    name = models.CharField(max_length=20)
+    # 关联 title 字段
+    group = models.ForeignKey('Group', on_delete=models.CASCADE,to_field='title')
+    
+class Group(models.Model):
+		# 被关联的字段必须唯一
+    title = models.CharField(max_length=20, unique=True)
+```
+
+> 其他更多属性，请参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/fields/#django.db.models.ForeignKey.db_constraint)
+{.is-info}
+
+# 表关系
+
+表之间的关系都是通过外键来进行关联的，而表之间的关系有三种：一对一、一对多（多对一）、多对多等
+
+## 多对一
+
+- 应用场景
+
+比如文章和作者之间的关系。一个文章只能由一个作者编写，但是一个作者可以写多篇文章。文章和作者之间的关系就是典型的多对一的关系。
+
+- 实现方式
+
+一对多或者多对一，都是通过 `ForeignKey` 来实现的
+
+```python
+class User(models.Model):
+     username = models.CharField(max_length=20)
+     password = models.CharField(max_length=100)
+
+ class Article(models.Model):
+     title = models.CharField(max_length=100)
+     content = models.TextField()
+     author = models.ForeignKey("User",on_delete=models.CASCADE)
+```
+
+```sql
+CREATE TABLE `relation_user`
+(
+    `id`       int          NOT NULL AUTO_INCREMENT,
+    `username` varchar(20)  NOT NULL,
+    `password` varchar(100) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  
+CREATE TABLE `relation_article`
+(
+    `id`        int          NOT NULL AUTO_INCREMENT,
+    `title`     varchar(100) NOT NULL,
+    `content`   longtext     NOT NULL,
+    `author_id` int          NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `relation_article_author_id_ce671c0d_fk_relation_user_id` (`author_id`),
+    CONSTRAINT `relation_article_author_id_ce671c0d_fk_relation_user_id` FOREIGN KEY (`author_id`) REFERENCES `relation_user` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+```
+
+## 一对一
+
+- 应用场景
+
+比如一个用户表和一个用户信息表。用户信息表用于对用户表的信息补充，因此可以把用户的一些不常用的信息存放到另外一张表中我们叫做 UserExtension。而用户表 User 和用户信息表 UserExtension 就是典型的一对一了。
+
+- 实现方式
+
+Django 为一对一提供了一个专门的 Field 叫做 OneToOneField 来实现一对一操作
+
+```python
+class User(models.Model):
+     username = models.CharField(max_length=20)
+     password = models.CharField(max_length=100)
+
+ class UserExtension(models.Model):  
+     birthday = models.DateTimeField(null=True)  
+     school = models.CharField(blank=True,max_length=50)  
+     user = models.OneToOneField("User", on_delete=models.CASCADE)
+```
+
+```sql
+CREATE TABLE `relation_userextension`
+(
+    `id`       int         NOT NULL AUTO_INCREMENT,
+    `birthday` datetime(6) DEFAULT NULL,
+    `school`   varchar(50) NOT NULL,
+    `user_id`  int         NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `user_id` (`user_id`),
+    CONSTRAINT `relation_userextension_user_id_c4a7f31a_fk_relation_user_id` FOREIGN KEY (`user_id`) REFERENCES `relation_user` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+```
+
+在 UserExtension 模型上增加了一个一对一的关系映射。其实底层是在 UserExtension 这个表上增加了一个 user_id，来和 user 表进行关联，并且这个外键数据在表中必须是唯一的，来保证一对一。
 
 
+## 多对多
 
 
+- 应用场景
+
+比如文章和标签的关系。一篇文章可以有多个标签，一个标签可以被多个文章所引用。因此标签和文章的关系是典型的多对多的关系。
+
+- 实现方式
+
+Django 为这种多对多的实现提供了专门的 Field。叫做 ManyToManyField
+
+```python
+class Article(models.Model):
+     title = models.CharField(max_length=100)
+     content = models.TextField()
+     tags = models.ManyToManyField("Tag",related_name="articles")
+
+ class Tag(models.Model):
+     name = models.CharField(max_length=50)
+```
+
+```sql
+CREATE TABLE `relation_article`
+(
+    `id`      int          NOT NULL AUTO_INCREMENT,
+    `title`   varchar(100) NOT NULL,
+    `content` longtext     NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 2
+  DEFAULT CHARSET = utf8
+  
+CREATE TABLE `relation_tag`
+(
+    `id`   int         NOT NULL AUTO_INCREMENT,
+    `name` varchar(50) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  
+CREATE TABLE `relation_article_tags`
+(
+    `id`         int NOT NULL AUTO_INCREMENT,
+    `article_id` int NOT NULL,
+    `tag_id`     int NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `relation_article_tags_article_id_tag_id_206d9d17_uniq` (`article_id`, `tag_id`),
+    KEY `relation_article_tags_tag_id_0e95cb96_fk_relation_tag_id` (`tag_id`),
+    CONSTRAINT `relation_article_tags_article_id_3ddc3832_fk_relation_article_id` FOREIGN KEY (`article_id`) REFERENCES `relation_article` (`id`),
+    CONSTRAINT `relation_article_tags_tag_id_0e95cb96_fk_relation_tag_id` FOREIGN KEY (`tag_id`) REFERENCES `relation_tag` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+```
+
+多对多的关系。需要一个位置参数：模型相关的类。但是其背后 Django 会创建了一个中间连接表来表示多对多的关系。
+
+默认情况下，这个表名是使用多对多字段的名称和包含它的模型的表名生成的，比如下面的：`relation_article_tags`。由于有些数据库不支持超过一定长度的表名，这些表名将被自动截断，并使用唯一性哈希，例如 `article_tags_9cdf` 。不过也可以使用 `db_table` 选项自定义中间表的名称。
 
 
+ManyToManyField 所涉及的一些参数用法与 ForeignKey 相同。除了个别特有的参数。
+
+> 注意：使用多对多关系由于无法确定反向查询的名称，两个模型中至少一个设置 `related_name`。如果不希望 Django 不创建反向关系，将 `related_name` 设置为 `'+'`。
+{.is-warning}
+
+## 多对多额外字段选项
+
+### through
+
+默认情况下，Django 会自动生成一个中间表来管理多对多关系：
+
+- 当源模型和目标模型不同，如下：
+
+```python
+class Publication(models.Model):
+    title = models.CharField(max_length=30)
 
 
+class Article(models.Model):
+    headline = models.CharField(max_length=100)
+    publications = models.ManyToManyField(Publication)
+
+# >>>>>>>>>>>>>  会生成如下字段
+++++++++++++++++++++++++++++++++++++++++++++++++
+id             int auto_increment primary key,
+article_id     int not null,
+publication_id int not null,
+++++++++++++++++++++++++++++++++++++++++++++++++
+```
+
+- 当源模型和目标模型相同，也就是自关联多对多，如下：
+
+```python
+class People(models.Model):
+    friends = models.ManyToManyField("self")
+    
+# >>>>>>>>>>>>>  会生成如下字段
+++++++++++++++++++++++++++++++++++++++++++++++++   
+id             int auto_increment primary key,
+from_people_id int not null,
+to_people_id   int not null,
+++++++++++++++++++++++++++++++++++++++++++++++++
+```
+
+当然也可以使用 `through` 参数自定义中间表。其通常目的是为了给中间表添加额外字段而使用。
+
+```python
+class Publication(models.Model):
+    title = models.CharField(max_length=30)
 
 
+class Article(models.Model):
+    headline = models.CharField(max_length=100)
+    # through 指定中间表
+    publications = models.ManyToManyField(Publication,through='ArticlePublication')
 
 
+class ArticlePublication(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    # 添加额外字段
+    pub_date = models.DateTimeField(default=datetime.now)
+
+    class Meta:
+        # 自定义中间表名
+        db_table = "article_publication_relationship"
+```
+
+### through_fields
+
+只有当指定了一个自定义的中间模型时才会使用，Django 通常会决定使用中介模型的哪些字段来自动建立多对多的关系。如下模型：
+
+```python
+class Publication(models.Model):
+    title = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.title
+
+
+class Article(models.Model):
+    headline = models.CharField(max_length=100)
+    publications = models.ManyToManyField(Publication, through='ArticlePublication',
+                                          through_fields=('article', 'publication'))
+
+class ArticlePublication(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    # 添加额外字段
+    pub_date = models.DateTimeField(default=datetime.now)
+
+    class Meta:
+        # 自定义中间表名
+        db_table = "article_publication_relationship"
+```
+
+`through_fields` 接受一个二元元组 `('field1', 'field2')`，其中 `field1` 是定义在 `ManyToManyField` 上的模型（本例中为 `article` ）的外键名称，`field2` 是目标模型（本例中为 `publication`）的外键名称。
+
+
+> 其他更多属性，请参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/fields/#django.db.models.ManyToManyField.db_table)
+{.is-info}
 
 
 
