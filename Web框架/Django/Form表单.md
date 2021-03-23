@@ -2,7 +2,7 @@
 title: Django 表单
 description: 
 published: true
-date: 2021-03-23T14:48:23.510Z
+date: 2021-03-23T14:48:51.561Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-23T14:48:23.510Z
@@ -95,7 +95,7 @@ class IndexView(View):
 
 错误信息的 key：`required、invalid`
 
-## FloatField：
+## FloatField
 
 用来接收浮点类型，并且如果验证通过后，会将这个字段的值转换为浮点类型。
 
