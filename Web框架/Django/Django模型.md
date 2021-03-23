@@ -2,7 +2,7 @@
 title: Django 模型
 description: 
 published: true
-date: 2021-03-23T09:38:21.096Z
+date: 2021-03-23T10:17:17.403Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-27T07:41:11.095Z
@@ -1491,31 +1491,366 @@ chunk_size 参数控制 Django 从数据库驱动中获取的批次大小。批�
 > 详细信息参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#field-lookups)
 {.is-success}
 
+## exact
 
-| 条件                       | 描述                                                         |
-| -------------------------- | ------------------------------------------------------------ |
-| `exact`/`iexact`           | 完全匹配。`iexact`是不区分大小写的版本。如果提供的比较值是 `None`，它将被解释为 SQL `NULL` |
-| `contains`/`icontains`     | 字段包含搜索文本。`icontains`是不区分大小写的版本            |
-| `in`                       | 在给定的可迭代（列表，元组或 QuerySet ）中                   |
-| `gt`/`gte`                 | 大于/大于或等于                                              |
-| `lt`/`lte`                 | 小于/小于或等于                                              |
-| `startswith`/`istartswith` | 以搜索字符串开头。`istartswith`是不区分大小写的版本          |
-| `endswith`/`iendswith`     | 以搜索字符串结尾。`iendswith`是不区分大小写的版本            |
-| `range`                    | 范围测试。范围包括开始和结束值                               |
-| `date`                     | 将值强制转换为日期。用于日期时间字段查找                     |
-| `year`                     | 搜索确切的年份匹配                                           |
-| `iso_year`                 | 搜索精确的ISO 8601年匹配项                                   |
-| `month`                    | 对于日期和日期时间字段，精确的月份匹配                       |
-| `day`                      | 对于日期和日期时间字段，精确匹配日期                         |
-| `week`                     | 对于日期和日期时间字段，根据 [ISO-8601](https://en.wikipedia.org/wiki/ISO-8601) ，返回星期号（1-52 或 53） |
-| `week_day`                 | 对于日期和日期时间字段，“星期几”匹配                         |
-| `quarter`                  | 对于日期和日期时间字段，“一年的四分之一”匹配。               |
-| `time`                     | 将值强制转换为时间。用于`datetime`现场查询                   |
-| `hour`                     | 搜索精确的小时匹配                                           |
-| `minute`                   | 搜索精确的分钟匹配                                           |
-| `second`                   | 搜索精确的第二场比赛                                         |
-| `isnull`                   | 检查字段是否为空。取`True`或`False`                          |
-| `regex`/`iregex`           | 正则表达式匹配。`iregex`是不区分大小写的版本                 |
+使用精确的`=`进行查找。如果提供的是一个 None，那么在 SQL 层面就是被解释为 NULL。示例代码如下：
+
+```python
+article = Article.objects.get(id__exact=14)
+article = Article.objects.get(id__exact=None)
+```
+
+以上的两个查找在翻译为SQL语句为如下：
+
+```sql
+select ... from article where id=14;
+select ... from article where id IS NULL;
+```
+
+## iexact
+
+使用 like 进行查找。示例代码如下：
+
+```python
+article = Article.objects.filter(title__iexact='hello world')
+```
+
+那么以上的查询就等价于以下的SQL语句：
+
+```sql
+select ... from article where title like 'hello world';
+```
+
+> 注意上面这个 sql 语句，因为在 MySQL 中，没有一个叫做 ilike 的。所以 exact 和 iexact 的区别实际上就是 `LIKE` 和 `=` 的区别，在大部分 `collation=utf8_general_ci` 情况下都是一样的（collation 是用来对字符串比较的）。
+{.is-warning}
+
+## contains
+
+大小写敏感，判断某个字段是否包含了某个数据。示例代码如下：
+
+```python
+articles = Article.objects.filter(title__contains='hello')
+```
+
+在翻译成 SQL 语句为如下：
+
+```sql
+select ... where title like binary '%hello%';
+```
+
+> 要注意的是，在使用 contains 的时候，翻译成的 sql 语句左右两边是有百分号的，意味着使用的是模糊查询。而 exact 翻译成 sql 语句左右两边是没有百分号的，意味着使用的是精确的查询。
+{.is-warning}
+
+
+## icontains
+
+大小写不敏感的匹配查询。示例代码如下：
+
+```python
+articles = Article.objects.filter(title__icontains='hello')
+```
+
+在翻译成SQL语句为如下：
+
+```sql
+select ... where title like '%hello%';
+```
+
+## startswith
+
+判断某个字段的值是否是以某个值开始的。大小写敏感。示例代码如下：
+
+```python
+articles = Article.objects.filter(title__startswith='hello')
+```
+
+以上代码的意思是提取所有标题以 hello 字符串开头的文章。将翻译成以下 SQL 语句：
+
+```sql
+select ... where title like 'hello%';
+```
+
+## istartswith
+
+类似于 startswith，但是大小写是不敏感的。
+
+## endswith
+
+判断某个字段的值是否以某个值结束。大小写敏感。示例代码如下：
+
+```python
+articles = Article.objects.filter(title__endswith='world')
+```
+
+以上代码的意思是提取所有标题以 world 结尾的文章。将翻译成以下 SQL 语句：
+
+```sql
+select ... where title like '%world';
+```
+
+## iendswith
+
+类似于 endswith，只不过大小写不敏感。
+
+## in
+
+提取那些给定的 field 的值是否在给定的容器中。容器可以为 list、tuple 或者任何一个可以迭代的对象，包括 QuerySet 对象。示例代码如下：
+
+```python
+articles = Article.objects.filter(id__in=[1,2,3])
+```
+
+以上代码在翻译成 SQL 语句为如下：
+
+```sql
+select ... where id in (1,3,4)
+```
+
+当然也可以传递一个 QuerySet 对象进去。示例代码如下：
+
+```python
+inner_qs = Article.objects.filter(title__contains='hello')
+categories = Category.objects.filter(article__in=inner_qs)
+```
+
+以上代码的意思是获取那些文章标题包含 hello 的所有分类。将翻译成以下 SQL 语句，示例代码如下：
+
+```sql
+select ...from category where article.id in (select id from article where title like '%hello%');
+```
+
+## range
+
+判断某个 field 的值是否在给定的区间中。示例代码如下：
+
+```python
+from django.utils.timezone import make_aware
+from datetime import datetime
+start_date = make_aware(datetime(year=2018,month=1,day=1))
+end_date = make_aware(datetime(year=2018,month=3,day=29,hour=16))
+articles = Article.objects.filter(pub_date__range=(start_date,end_date))
+```
+
+以上代码的意思是提取所有发布时间在2018/1/1到2018/12/12之间的文章。将翻译成以下的 SQL 语句：
+
+```sql
+select ... from article where pub_time between '2018-01-01' and '2018-12-12'。
+```
+
+需要注意的是，以上提取数据，不会包含最后一个值。也就是不会包含2018/12/12的文章。而且另外一个重点，因为我们在 `settings.py`中指定了 `USE_TZ=True`，并且设置了`TIME_ZONE='Asia/Shanghai'`，因此我们在提取数据的时候要使用 `django.utils.timezone.make_aware` 先将 `datetime.datetime` 从 `navie` 时间转换为 `aware` 时间。`make_aware` 会将指定的时间转换为 `TIME_ZONE` 中指定的时区的时间。
+
+## gt
+
+某个 field 的值要大于给定的值。示例代码如下：
+
+```python
+articles = Article.objects.filter(id__gt=4)
+```
+
+以上代码的意思是将所有 id 大于 4 的文章全部都找出来。将翻译成以下 SQL 语句：
+
+```sql
+select ... where id > 4;
+```
+
+## gte
+类似于 gt，是大于等于。
+
+## lt
+
+类似于 gt 是小于。
+
+## lte
+
+类似于 lt，是小于等于。
+
+## date
+
+针对某些 date 或者 datetime 类型的字段。可以指定 date 的范围。并且这个时间过滤，还可以使用链式调用。示例代码如下：
+
+```python
+articles = Article.objects.filter(pub_date__date=date(2018,3,29))
+```
+
+以上代码的意思是查找时间为2018/3/29这一天发表的所有文章。将翻译成以下的 sql 语句：
+
+```sql
+select ... WHERE DATE(CONVERT_TZ(`front_article`.`pub_date`, 'UTC', 'Asia/Shanghai')) = 2018-03-29
+```
+
+## year
+
+根据年份进行查找。示例代码如下：
+
+```python
+articles = Article.objects.filter(pub_date__year=2018)
+articles = Article.objects.filter(pub_date__year__gte=2017)
+```
+
+以上的代码在翻译成 SQL 语句为如下：
+
+```sql
+select ... where pub_date between '2018-01-01' and '2018-12-31';
+select ... where pub_date >= '2017-01-01';
+```
+
+## iso_year
+
+对于日期和日期时间字段，精确的 ISO 8601 周号年份匹配
+
+```python
+Entry.objects.filter(pub_date__iso_year=2005)
+Entry.objects.filter(pub_date__iso_year__gte=2005)
+```
+
+## month
+
+对于日期和日期时间字段，精确的月份匹配
+
+```python
+Entry.objects.filter(pub_date__month=12)
+Entry.objects.filter(pub_date__month__gte=6)
+```
+
+SQL 等价于：
+
+```sql
+SELECT ... WHERE EXTRACT('month' FROM pub_date) = '12';
+SELECT ... WHERE EXTRACT('month' FROM pub_date) >= '6';
+```
+
+## day
+
+对于日期和日期时间字段，精确匹配日期
+
+举例：
+
+```python
+Entry.objects.filter(pub_date__day=3)
+Entry.objects.filter(pub_date__day__gte=3)
+```
+
+SQL 等价于：
+
+```sql
+SELECT ... WHERE EXTRACT('day' FROM pub_date) = '3';
+SELECT ... WHERE EXTRACT('day' FROM pub_date) >= '3';
+```
+
+## week
+
+对于日期和日期时间字段，根据 ISO-8601 ，返回星期号（1-52 或 53），即星期从星期一开始，第一周包含一年的第一个星期四。
+
+```python
+Entry.objects.filter(pub_date__week=52)
+Entry.objects.filter(pub_date__week__gte=32, pub_date__week__lte=38)
+```
+
+## week_day
+
+对于日期和日期时间字段，“星期几”匹配
+
+```python
+Entry.objects.filter(pub_date__week_day=2)
+Entry.objects.filter(pub_date__week_day__gte=2)
+```
+
+## iso_week_day
+
+对于日期和日期时间字段，精确匹配 ISO 8601 星期几
+
+```python
+Entry.objects.filter(pub_date__iso_week_day=1)
+Entry.objects.filter(pub_date__iso_week_day__gte=1)
+```
+
+## quarter
+
+对于日期和日期时间字段，取 1 到 4 之间的整数值，代表一年中的季度。
+
+```python
+Entry.objects.filter(pub_date__quarter=2)
+```
+
+## time
+
+对于日期时间字段，将其值强制转换为时间
+
+```python
+Entry.objects.filter(pub_date__time=datetime.time(14, 30))
+Entry.objects.filter(pub_date__time__range=(datetime.time(8), datetime.time(17)))
+```
+
+## hour
+
+对于日期时间和时间字段，精确的小时匹配
+
+```python
+Event.objects.filter(timestamp__hour=23)
+Event.objects.filter(time__hour=5)
+Event.objects.filter(timestamp__hour__gte=12)
+```
+
+SQL 等价于：
+
+```sql
+SELECT ... WHERE EXTRACT('hour' FROM timestamp) = '23';
+SELECT ... WHERE EXTRACT('hour' FROM time) = '5';
+SELECT ... WHERE EXTRACT('hour' FROM timestamp) >= '12';
+```
+
+## minute
+
+对于日期时间和时间字段，精确的分钟匹配。取 0 到 59 之间的整数
+
+```python
+Event.objects.filter(timestamp__minute=29)
+Event.objects.filter(time__minute=46)
+Event.objects.filter(timestamp__minute__gte=29)
+```
+
+SQL 等价于：
+
+```sql
+SELECT ... WHERE EXTRACT('minute' FROM timestamp) = '29';
+SELECT ... WHERE EXTRACT('minute' FROM time) = '46';
+SELECT ... WHERE EXTRACT('minute' FROM timestamp) >= '29';
+```
+
+## second
+
+对于日期时间和时间字段，精确的秒匹配。取 0 到 59 之间的整数。
+
+```python
+Event.objects.filter(timestamp__second=31)
+Event.objects.filter(time__second=2)
+Event.objects.filter(timestamp__second__gte=31)
+```
+
+SQL 等价于：
+
+```sql
+SELECT ... WHERE EXTRACT('second' FROM timestamp) = '31';
+SELECT ... WHERE EXTRACT('second' FROM time) = '2';
+SELECT ... WHERE EXTRACT('second' FROM timestamp) >= '31';
+```
+
+
+## regex 和 iregex
+
+大小写敏感和大小写不敏感的正则表达式。示例代码如下：
+
+```python
+articles = Article.objects.filter(title__regex=r'^hello')
+```
+
+以上代码的意思是提取所有标题以 hello 字符串开头的文章。将翻译成以下的 SQL 语句：
+
+```sql
+select ... where title regexp binary '^hello';
+```
+
+iregex 是大小写不敏感的。
 
 # 聚合函数
 
@@ -1528,6 +1863,8 @@ chunk_size 参数控制 Django 从数据库驱动中获取的批次大小。批�
 | `StdDev`   | 返回给定表达式中数据的标准差。 |
 | `Sum`      | 返回表达式中所有值的总和。     |
 | `Variance` | 返回给定表达式中数据的方差。   |
+
+聚合函数是通过 aggregate 方法来实现的。
 
 ## aggregate()
 
@@ -1550,19 +1887,22 @@ from django.db.models import Sum, Count, Max, Min, Avg
 >>> Book.objects.all().aggregate(Count('id'))
 {'id__count': 5}
 
+# Count 类中，还有另外一个参数叫做 distinct，默认是等于 False，如果是等于 True，那么将去掉那些重复的值
+>>> Book.objects.all().aggregate(Count('price',distinct=True))
+
 ### Sum()
 >>> Book.objects.aggregate(Sum('bread'))
 {'bread__sum': 126}
 ```
 
-`aggregate()` 函数返回值为一个字典，默认字典的键是根据字段名和聚合函数而自动生成的（字段名_聚合函数）也可以指定的名称。
+`aggregate()` 函数返回值为一个字典，默认字典的键是根据字段名和聚合函数而自动生成的（`字段名_聚合函数`）也可以指定的名称。
 
 ```python
 >>> Book.objects.aggregate(average_price=Avg('price'))
 {'average_price': 34.35}
 ```
 
-如果你想生成更多的聚合内容，你需要在 aggregate() 子句中加入其它参数即可
+如果你想生成更多的聚合内容，你需要在 `aggregate()` 子句中加入其它参数即可
 
 ```python
 >>> Book.objects.aggregate(Avg('price'), Max('price'), Min('price'))
@@ -1591,14 +1931,18 @@ from django.db.models import Sum, Count, Max, Min, Avg
 1
 ```
 
-> 与 `aggregate()` 不同的是，`annotate()` 不是终端子句。`annotate()` 子句的输出就是 QuerySet。这个 QuerySet 被其他 QuerySet 操作进行修改，包括 `filter()`, `order_by()`
-{.is-info}
+## aggregate 和 annotate 的区别
+
+1. aggregate：返回使用聚合函数后的字段和值。
+2. annotate：在原来模型字段的基础之上添加一个使用了聚合函数的字段，并且在使用聚合函数的时候，会使用当前这个模型的主键进行分组（group by）
+
+比如以上 Sum 的例子，如果使用的是 annotate，那么将在每条图书的数据上都添加一个字段叫做 bread，计算这本书的阅读总量。而如果使用的是 aggregate ，那么将求所有图书的阅读总量。
 
 
 > [查询表达式官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/#f-expressions)
 {.is-success}
 
-# F 表达式
+# F() 表达式
 
 有时需要在一个字段上执行一个简单的算术任务，比如递增或递减当前值。一种方法是在 Python 中进行运算，比如：
 
@@ -1608,9 +1952,9 @@ reporter.stories_filed += 1
 reporter.save()
 ```
 
-这一过程是从数据库中提取了 reporter.stories_filed 的值到内存中，使用 Python 操作符对其进行操作，然后将对象保存回数据库
+这一过程是从数据库中提取了 `reporter.stories_filed` 的值到内存中，使用 Python 操作符对其进行操作，然后将对象保存回数据库
 
-然而使用 F() 对象操作方法如下：
+然而使用 F() 表达式操作方法如下：
 
 ```python
 from django.db.models import F
@@ -1620,7 +1964,7 @@ reporter.stories_filed = F('stories_filed') + 1
 reporter.save()
 ```
 
-看似是一个普通的 Python 赋值给一个实例属性 ，实际当 Django 遇到 F() 的实例时，它会覆盖标准的 Python 运算符来创建一个封装的 SQL 表达式，在数据库层面描述所需的操作。Python 层面并不知道 reporter.stories_filed 的值是多少。
+看似是一个普通的 Python 赋值给一个实例属性 ，实际当 Django 遇到 F() 表达式的实例时，它会覆盖标准的 Python 运算符来创建一个封装的 SQL 表达式，在数据库层面描述所需的操作。Python 层面并不知道 `reporter.stories_filed` 的值是多少。
 
 要访问这样保存的新值，必须重新加载对象：
 
@@ -1630,7 +1974,7 @@ reporter = Reporters.objects.get(pk=reporter.pk)
 reporter.refresh_from_db()
 ```
 
-F() 还可以与 update() 一起用于对象实例的 QuerySets，从而把上面使用的两个查询 get() 和 save() 减少到只有一个：
+F() 表达式还可以与 `update()` 一起用于对象实例的 QuerySets，从而把上面使用的两个查询 `get()` 和 `save()` 减少到只有一个：
 
 ```python
 reporter = Reporters.objects.filter(name='Tintin')
@@ -1648,7 +1992,7 @@ Reporter.objects.all().update(stories_filed=F('stories_filed') + 1)
 - **让数据库，而不是 Python 来完成工作**
 - **减少某些操作所需的查询次数**
 
-## 使用 F() 避免竞争条件。
+## 使用 F() 表达式避免多线程竞争
 
 如果两个 Python 线程执行下面的代码，一个线程可以在另一个线程从数据库中获取一个字段的值后，检索、递增并保存它。第二个线程保存的值将基于原始值，从而导致第一个线程的工作并不是基于第二个线程只有的结果。
 
@@ -1660,7 +2004,7 @@ reporter.save()
 
 如果数据库负责更新字段，那么这个过程就比较稳健：它只会在执行 `save()` 或 `update()` 时，根据数据库中字段的值来更新字段，而不是根据检索实例时的值来更新。
 
-## F() 赋值在 Model.save() 之后持续存在
+## F() 表达式赋值在 Model.save() 之后持续存在
 
 例如：
 
@@ -1672,11 +2016,11 @@ reporter.name = 'Tintin Jr.'
 reporter.save()python
 ```
 
-在这种情况下，stories_filed 将被更新两次。如果最初是 1，最终值将是 3。这种持久性可以通过在保存模型对象后重新加载来避免，例如，使用 refresh_from_db()。
+在这种情况下，`stories_filed` 将被更新两次。如果最初是 1，最终值将是 3。这种持久性可以通过在保存模型对象后重新加载来避免，例如，使用 `refresh_from_db()`。
 
-## 在过滤器中使用 F()
+## 在过滤器中使用 F() 表达式
 
-Django 中 F() 的实例充当查询中的模型字段的引用。这些引用可在查询过滤器中用于在同一模型实例中比较两个不同的字段。
+Django 中 F 表达式的实例充当查询中的模型字段的引用。这些引用可在查询过滤器中用于在同一模型实例中比较两个不同的字段。
 
 例：查询图书阅读量大于评论量图书信息。
 
@@ -1704,7 +2048,7 @@ from datetime import timedelta
 BookInfo.objects.filter(modifidy_at__gt=F('created_at') + timedelta(days=3))
 ```
 
-F() 对象通过 `.bitand()`， `.bitor()`， `.bitxor()`，`.bitrightshift()` 和 `.bitleftshift()` 支持位操作。例子:
+F() 表达式通过 `.bitand()`， `.bitor()`， `.bitxor()`，`.bitrightshift()` 和 `.bitleftshift()` 支持位操作。例子:
 
 ```python
 F('somefield').bitand(16)
@@ -1713,7 +2057,7 @@ F('somefield').bitand(16)
 > 更多用法，请参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/#using-f-with-annotations)
 {.is-info}
 
-# Q 对象
+# Q() 对象
 
 像 F() 表达式一样，Q() 对象将 SQL 表达式封装在 Python 对象内部。Q() 对象最常用于通过使用 `AND(&)`、`OR(|)`和 `NOT(~)` 运算符将多个表达式链接在一起来构造复杂的数据库查询：
 
