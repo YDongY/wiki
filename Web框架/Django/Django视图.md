@@ -2,7 +2,7 @@
 title: Django 视图
 description: 
 published: true
-date: 2021-03-23T13:02:22.446Z
+date: 2021-03-23T13:03:24.633Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-23T13:01:52.430Z
