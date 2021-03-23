@@ -2,7 +2,7 @@
 title: Django 缓存 memcached
 description: 
 published: true
-date: 2021-03-23T15:24:58.941Z
+date: 2021-03-23T15:25:19.414Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-23T15:24:34.427Z
@@ -11,8 +11,6 @@ dateCreated: 2021-03-23T15:24:34.427Z
 
 > [官方文档](https://docs.djangoproject.com/zh-hans/3.1/topics/cache/#django-s-cache-framework)
 {.is-success}
-
-# 配置
 
 首先需要在 `settings.py` 中配置好缓存：
 
