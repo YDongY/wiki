@@ -2,7 +2,7 @@
 title: Django 模型
 description: 
 published: true
-date: 2021-03-23T09:34:01.312Z
+date: 2021-03-23T09:38:21.096Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-27T07:41:11.095Z
@@ -1254,7 +1254,7 @@ SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
 <QuerySet [datetime.date(1986, 7, 24), datetime.date(1980, 5, 1)]>
 ```
 
-## union() 和 intersection() 和 difference()
+### union() 和 intersection() 和 difference()
 
 - `UNION()`
 
