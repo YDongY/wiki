@@ -2,7 +2,7 @@
 title: Django 模型
 description: 
 published: true
-date: 2021-03-23T09:19:27.941Z
+date: 2021-03-23T09:34:01.312Z
 tags: django
 editor: markdown
 dateCreated: 2021-02-27T07:41:11.095Z
@@ -922,35 +922,209 @@ class ArticlePublication(models.Model):
 {.is-info}
 
 
+# 增
+
+## save()
+
+Django 仅当在显式调用 save() 才操作数据库。其背后执行了 `INSERT SQL` 语句
+
+```python
+>>> from blog.models import Blog
+>>> b = Blog(name='Beatles Blog', tagline='All the latest Beatles news.')
+>>> b.save()
+```
+
+## create()
+
+创建一个对象并一步到位地保存
+
+```python
+>>> Author.objects.create(name="Jack", email="admin@admin.com")
+<Author: Jack>
+```
+
+与下面的方式等价：
+
+```python
+a = Author(name="Jack", email="admin@admin.com")
+a.save(force_insert=True) # 强制执行 INSERT
+```
+
+## bulk_create()
+
+将所提供的对象列表以高效的方式插入到数据库中
+
+```python
+>>> a1 = Author(name = 'Mike',email = 'mike@qq.com')
+>>> a2 = Author(name = 'Tom',email = 'tom@163.com')
+>>> Author.objects.bulk_create([a1,a2])
+[<Author: Mike>, <Author: Tom>]
+```
+
+> 有关注意事项参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#bulk-create)
+{.is-success}
+
+该方法有一个 batch_size 参数控制在一次查询中创建多少对象，默认情况是在一个批次中创建所有对象，但 SQLite 除外，默认情况是每个查询最多使用 999 个变量。
+
+## get_or_create()
+
+一个简便的方法，用于查找特定对象，不存在则创建。
+
+常用来防止在并行进行请求时创建重复的对象，例如：
+
+```python
+try:
+    obj = Person.objects.get(first_name='John', last_name='Lennon')
+except Person.DoesNotExist:
+    obj = Person(first_name='John', last_name='Lennon', birthday=date(1940, 10, 9))
+    obj.save()
+```
+
+如果是并发请求，可能会多次尝试用相同的参数保存一个 Person。为了避免这种竞争条件，可以使用 get_or_create() 重写上面的例子，比如：
+
+```python
+obj, created = Person.objects.get_or_create(
+    first_name='John',
+    last_name='Lennon',
+    defaults={'birthday': date(1940, 10, 9)},
+)
+```
+
+返回 `(object, created)` 的元组，其中 object 是检索或创建的对象，created 是指定是否创建新对象的布尔值。
+
+- 如果找到了一个对象，则 `get_or_create()` 返回该对象的元组和 False。
+
+- 如果找到多个对象，get_or_create() 会引发 `MultipleObjectsReturned`
+
+- 如果没有找到对象，返回一个新对象的元组和 True
+
+> 如果关键字参数中使用的字段有唯一性约束，这个方法是**原子性**的。否则并发调用可能会导致插入具有相同参数的多条记录。
+{.is-warning}
 
 
+**一个复杂的案例**
+
+如果 Robert 或 Bob Marley 存在，则检索 Robert 或 Bob Marley，否则创建后者：
+
+```python
+from django.db.models import Q
+
+obj, created = Person.objects.filter(
+    Q(first_name='Bob') | Q(first_name='Robert'),
+).get_or_create(last_name='Marley', defaults={'first_name': 'Bob'})
+```
+
+> 官方推荐只在 POST 请求中使用它，因为 GET 请求不应该对数据有任何影响。
+{.is-success}
+
+> 通过 ManyToManyField 属性和反向关系来使用 get_or_create()。在这种情况下，你将限制在该关系的上下文内进行查询。如果你不持续使用它，这可能会导致一些完整性问题。
+{.is-warning}
+
+例如：
+
+```python
+class Chapter(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+
+class Book(models.Model):
+    title = models.CharField(max_length=256)
+    chapters = models.ManyToManyField(Chapter)
+```
+
+可以通过 Book 的 chapters 字段使用 get_or_create()，但它只能在该书的上下文中获取：
+
+```python
+>>> book = Book.objects.create(title="Ulysses")
+>>> book.chapters.get_or_create(title="Telemachus")
+(<Chapter: Telemachus>, True)
+>>> book.chapters.get_or_create(title="Telemachus")
+(<Chapter: Telemachus>, False)
+>>> Chapter.objects.create(title="Chapter 1") # 这一行导致下面出现异常
+<Chapter: Chapter 1>
+>>> book.chapters.get_or_create(title="Chapter 1")
+# Raises IntegrityError 抛出异常
+```
+
+# 删
+
+## delete()
+
+对 QuerySet 中的所有行执行 SQL 删除查询，并返回删除的对象数量和每个对象类型的删除数量的字典。
+
+```python
+>>> b = Blog.objects.get(pk=1)
+
+# Delete all the entries belonging to this Blog.
+>>> Entry.objects.filter(blog=b).delete()
+(4, {'weblog.Entry': 2, 'weblog.Entry_authors': 2})
+```
+
+> 默认情况下，Django 的 ForeignKey 模拟了 SQL 约束 `ON DELETE CASCADE`
+{.is-info}
+
+delete() 方法进行批量删除，会为所有被删除的对象（包括级联删除）发出 `pre_delete` 和 `post_delete` 信号。
+
+Django 需要将对象获取到内存中来发送信号和处理级联。但是，如果没有级联和信号，那么 Django 可能会采取**快速路径**删除对象，而不需要将其获取到内存中。对于大面积的删除，这可以使内存使用量大大降低。也可以减少执行查询的数量。
+
+设置为 `on_delete=DO_NOTHING` 的外键不会阻止在删除时采取快速路径。
+
+# 改
+
+## update_or_create()
+
+用给定的 kwargs 更新对象的一种方便方法，是必要时创建一个新对象。defaults 是用来更新对象的`(field, value)`对的字典。defaults 中的值可以是可调用对象。
+
+具体的含义与注意事项与 `get_or_update()` 一样。
+
+例如：
+
+```python
+defaults = {'first_name': 'Bob'}
+try:
+    obj = Person.objects.get(first_name='John', last_name='Lennon')
+    for key, value in defaults.items():
+        setattr(obj, key, value)
+    obj.save()
+except Person.DoesNotExist:
+    new_values = {'first_name': 'John', 'last_name': 'Lennon'}
+    new_values.update(defaults)
+    obj = Person(**new_values)
+    obj.save()
+```
+
+上面的例子可以使用 `update_or_create()` 重写
+
+```python
+obj, created = Person.objects.update_or_create(
+    first_name='John', last_name='Lennon',
+    defaults={'first_name': 'Bob'},
+)
+```
+
+## update()
+
+对指定的字段执行 SQL 更新查询，并返回匹配的行数
+
+例如，要关闭 2010 年发表的所有博客条目的评论：
+
+```python
+Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
+```
+
+如果只是更新一条记录，不需要对模型对象做任何事情，最有效的方法是调用 update()，而不是将模型对象加载到内存中。例如，不要这样做：
+
+```python
+e = Entry.objects.get(id=10)
+e.comments_on = False
+e.save()
+```
+
+因为 update() 是在 SQL 级别上进行更新，因此，它不会在模型上调用任何 save() 方法，也不会发出 pre_save 或 post_save 信号
+
+# QuerySet API
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 查询返回 QuerySet 的方法
+## 查询返回 QuerySet 的方法
 
 | 方法                  | 描述                                                         |
 | :-------------------- | :----------------------------------------------------------- |
@@ -979,7 +1153,7 @@ class ArticlePublication(models.Model):
 | `AND (&)`             | 将两个 QuerySet 与 SQL `AND`运算符结合在一起。使用`AND (&)`在功能上等同于使用`filter()`多个参数 |
 | `OR (|)`              | 将两个 QuerySet 与 SQL `OR` 运算符组合                       |
 
-## exclude()
+### exclude()
 
 `exclude()` 将返回与给定的查找参数不匹配的对象的QuerySet，例如：
 
@@ -1009,7 +1183,7 @@ SELECT ... WHERE NOT (name='天龙八部' AND id=2);
 SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
 ```
 
-## order_by() 和reverse()
+### order_by() 和 reverse()
 
 - `order_by()` 对结果排序
 
@@ -1033,7 +1207,7 @@ SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
 
 模型必须具有默认顺序（通过设置 `models Meta`类的 `ordering` 选项）`reverse()` 才能有用。如果模型是无序的，则返回的 QuerySet 的排序顺序将毫无意义。
 
-## values() 和 values_list()
+### values() 和 values_list()
 
 - `values()` : 返回字典，每一个字典都代表一个对象，键与模型对象的属性名相对应。
 
@@ -1063,7 +1237,7 @@ SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
 '天龙八部'
 ```
 
-## date() 和datetimes()
+### date() 和 datetimes()
 
 使用 `dates()` 和 `datetimes()` 方法从数据库中返回有时间限制的记录。对于dates() 这些时间界限是 year，month，week 和 day。datetimes() 增加了hour，minute 和 second 界限。一些例子：
 
@@ -1125,7 +1299,7 @@ SELECT ... WHERE NOT name='天龙八部' AND NOT id=3;
 
 使用 SQL 的 EXCEPT 操作符，只保留存在于 QuerySet 中的元素，而不保留在其他 QuerySet 中的元素，即求差集
 
-## select_related() 和 prefetch_related()
+### select_related() 和 prefetch_related()
 
 - `select_related()`：返回一个 QuerySet 并且查询出外键相关联的数据，意味着首次查询比较耗时，但是以后使用外键关系将不需要数据库查询。
 
@@ -1257,7 +1431,7 @@ Pizza.objects.all().prefetch_related('toppings')
 
 > `prefetch_related()` 中的附加查询是在 QuerySet 开始执行和主要查询被执行后执行的
 
-# 查询不返回 QuerySet 的方法
+## 查询不返回 QuerySet 的方法
 
 | 方法                 | 描述                                                         |
 | :------------------- | :----------------------------------------------------------- |
@@ -1277,7 +1451,7 @@ Pizza.objects.all().prefetch_related('toppings')
 | `explain()`          | 返回 QuerySet 的执行计划的字符串。用于分析查询性能           |
 
 
-## in_bulk()
+### in_bulk()
 
 接受一个字段值列表 `id_list`，返回字段值与其对应对象的映射字典。其中 `field_name` 必须是一个唯一的字段，它默认为主键
 
@@ -1300,7 +1474,7 @@ Pizza.objects.all().prefetch_related('toppings')
 {'beatles_blog': <Blog: Beatles Blog>}
 ```
 
-## iterator()
+### iterator()
 
 查询直接读取结果不在 QuerySet 级别做任何缓存，返回一个迭代器。对于一个只需要访问一次就能返回大量对象的 QuerySet 来说，这可以带来更好的性能，并显著减少内存。
 
@@ -1312,206 +1486,7 @@ chunk_size 参数控制 Django 从数据库驱动中获取的批次大小。批�
 > 使用 iterator() 会导致 refetch_related() 调用被忽略，因为这两种优化方式放在一起没有意义。
 {.is-warning}
 
-# 添加
-
-## save()
-
-Django 仅当在显式调用 save() 才操作数据库。其背后执行了 `INSERT SQL` 语句
-
-```python
->>> from blog.models import Blog
->>> b = Blog(name='Beatles Blog', tagline='All the latest Beatles news.')
->>> b.save()
-```
-
-## create()
-
-创建一个对象并一步到位地保存
-
-```python
->>> Author.objects.create(name="Jack", email="admin@admin.com")
-<Author: Jack>
-```
-
-与下面的方式等价：
-
-```python
-a = Author(name="Jack", email="admin@admin.com")
-a.save(force_insert=True) # 强制执行 INSERT
-```
-
-## bulk_create()
-
-将所提供的对象列表以高效的方式插入到数据库中
-
-```python
->>> a1 = Author(name = 'Mike',email = 'mike@qq.com')
->>> a2 = Author(name = 'Tom',email = 'tom@163.com')
->>> Author.objects.bulk_create([a1,a2])
-[<Author: Mike>, <Author: Tom>]
-```
-
-> 有关注意事项参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#bulk-create)
-{.is-success}
-
-该方法有一个 batch_size 参数控制在一次查询中创建多少对象，默认情况是在一个批次中创建所有对象，但 SQLite 除外，默认情况是每个查询最多使用 999 个变量。
-
-## get_or_create()
-
-一个简便的方法，用于查找特定对象，不存在则创建。
-
-常用来防止在并行进行请求时创建重复的对象，例如：
-
-```python
-try:
-    obj = Person.objects.get(first_name='John', last_name='Lennon')
-except Person.DoesNotExist:
-    obj = Person(first_name='John', last_name='Lennon', birthday=date(1940, 10, 9))
-    obj.save()
-```
-
-如果是并发请求，可能会多次尝试用相同的参数保存一个 Person。为了避免这种竞争条件，可以使用 get_or_create() 重写上面的例子，比如：
-
-```python
-obj, created = Person.objects.get_or_create(
-    first_name='John',
-    last_name='Lennon',
-    defaults={'birthday': date(1940, 10, 9)},
-)
-```
-
-返回 `(object, created)` 的元组，其中 object 是检索或创建的对象，created 是指定是否创建新对象的布尔值。
-
-- 如果找到了一个对象，则 `get_or_create()` 返回该对象的元组和 False。
-
-- 如果找到多个对象，get_or_create() 会引发 `MultipleObjectsReturned`
-
-- 如果没有找到对象，返回一个新对象的元组和 True
-
-> 如果关键字参数中使用的字段有唯一性约束，这个方法是**原子性**的。否则并发调用可能会导致插入具有相同参数的多条记录。
-{.is-warning}
-
-
-**一个复杂的案例**
-
-如果 Robert 或 Bob Marley 存在，则检索 Robert 或 Bob Marley，否则创建后者：
-
-```python
-from django.db.models import Q
-
-obj, created = Person.objects.filter(
-    Q(first_name='Bob') | Q(first_name='Robert'),
-).get_or_create(last_name='Marley', defaults={'first_name': 'Bob'})
-```
-
-> 官方推荐只在 POST 请求中使用它，因为 GET 请求不应该对数据有任何影响。
-{.is-success}
-
-> 通过 ManyToManyField 属性和反向关系来使用 get_or_create()。在这种情况下，你将限制在该关系的上下文内进行查询。如果你不持续使用它，这可能会导致一些完整性问题。
-{.is-warning}
-
-例如：
-
-```python
-class Chapter(models.Model):
-    title = models.CharField(max_length=255, unique=True)
-
-class Book(models.Model):
-    title = models.CharField(max_length=256)
-    chapters = models.ManyToManyField(Chapter)
-```
-
-可以通过 Book 的 chapters 字段使用 get_or_create()，但它只能在该书的上下文中获取：
-
-```python
->>> book = Book.objects.create(title="Ulysses")
->>> book.chapters.get_or_create(title="Telemachus")
-(<Chapter: Telemachus>, True)
->>> book.chapters.get_or_create(title="Telemachus")
-(<Chapter: Telemachus>, False)
->>> Chapter.objects.create(title="Chapter 1") # 这一行导致下面出现异常
-<Chapter: Chapter 1>
->>> book.chapters.get_or_create(title="Chapter 1")
-# Raises IntegrityError 抛出异常
-```
-
-# 修改
-
-## update_or_create()
-
-用给定的 kwargs 更新对象的一种方便方法，是必要时创建一个新对象。defaults 是用来更新对象的 (field, value) 对的字典。defaults 中的值可以是可调用对象。
-
-具体的含义与注意事项与 get_or_update() 一样。
-
-例如：
-
-```python
-defaults = {'first_name': 'Bob'}
-try:
-    obj = Person.objects.get(first_name='John', last_name='Lennon')
-    for key, value in defaults.items():
-        setattr(obj, key, value)
-    obj.save()
-except Person.DoesNotExist:
-    new_values = {'first_name': 'John', 'last_name': 'Lennon'}
-    new_values.update(defaults)
-    obj = Person(**new_values)
-    obj.save()
-```
-
-上面的例子可以使用 update_or_create() 重写
-
-```python
-obj, created = Person.objects.update_or_create(
-    first_name='John', last_name='Lennon',
-    defaults={'first_name': 'Bob'},
-)
-```
-
-## update()
-
-对指定的字段执行 SQL 更新查询，并返回匹配的行数
-
-例如，要关闭 2010 年发表的所有博客条目的评论：
-
-```python
-Entry.objects.filter(pub_date__year=2010).update(comments_on=False)
-```
-
-如果只是更新一条记录，不需要对模型对象做任何事情，最有效的方法是调用 update()，而不是将模型对象加载到内存中。例如，不要这样做：
-
-```python
-e = Entry.objects.get(id=10)
-e.comments_on = False
-e.save()
-```
-
-因为 update() 是在 SQL 级别上进行更新，因此，它不会在模型上调用任何 save() 方法，也不会发出 pre_save 或 post_save 信号
-
-# 删除
-
-## delete()
-
-对 QuerySet 中的所有行执行 SQL 删除查询，并返回删除的对象数量和每个对象类型的删除数量的字典。
-
-```python
->>> b = Blog.objects.get(pk=1)
-
-# Delete all the entries belonging to this Blog.
->>> Entry.objects.filter(blog=b).delete()
-(4, {'weblog.Entry': 2, 'weblog.Entry_authors': 2})
-```
-
-> 默认情况下，Django 的 ForeignKey 模拟了 SQL 约束 ON DELETE CASCADE
-{.is-info}
-
-delete() 方法进行批量删除，会为所有被删除的对象（包括级联删除）发出 pre_delete 和 post_delete 信号。
-
-Django 需要将对象获取到内存中来发送信号和处理级联。但是，如果没有级联和信号，那么 Django 可能会采取**快速路径**删除对象，而不需要将其获取到内存中。对于大面积的删除，这可以使内存使用量大大降低。也可以减少执行查询的数量。
-
-设置为 on_delete=DO_NOTHING 的外键不会阻止在删除时采取快速路径。
-
-# Where 查询条件
+# 查询条件
 
 > 详细信息参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/querysets/#field-lookups)
 {.is-success}
@@ -1542,7 +1517,7 @@ Django 需要将对象获取到内存中来发送信号和处理级联。但是�
 | `isnull`                   | 检查字段是否为空。取`True`或`False`                          |
 | `regex`/`iregex`           | 正则表达式匹配。`iregex`是不区分大小写的版本                 |
 
-## 聚合函数
+# 聚合函数
 
 | 函数名     | 描述                           |
 | ---------- | ------------------------------ |
@@ -1619,12 +1594,11 @@ from django.db.models import Sum, Count, Max, Min, Avg
 > 与 `aggregate()` 不同的是，`annotate()` 不是终端子句。`annotate()` 子句的输出就是 QuerySet。这个 QuerySet 被其他 QuerySet 操作进行修改，包括 `filter()`, `order_by()`
 {.is-info}
 
-# 查询表达式
 
-> [官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/#f-expressions)
+> [查询表达式官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/#f-expressions)
 {.is-success}
 
-## F() 表达式
+# F 表达式
 
 有时需要在一个字段上执行一个简单的算术任务，比如递增或递减当前值。一种方法是在 Python 中进行运算，比如：
 
@@ -1674,7 +1648,7 @@ Reporter.objects.all().update(stories_filed=F('stories_filed') + 1)
 - **让数据库，而不是 Python 来完成工作**
 - **减少某些操作所需的查询次数**
 
-# 使用 F() 避免竞争条件。
+## 使用 F() 避免竞争条件。
 
 如果两个 Python 线程执行下面的代码，一个线程可以在另一个线程从数据库中获取一个字段的值后，检索、递增并保存它。第二个线程保存的值将基于原始值，从而导致第一个线程的工作并不是基于第二个线程只有的结果。
 
@@ -1686,7 +1660,7 @@ reporter.save()
 
 如果数据库负责更新字段，那么这个过程就比较稳健：它只会在执行 `save()` 或 `update()` 时，根据数据库中字段的值来更新字段，而不是根据检索实例时的值来更新。
 
-# F() 赋值在 Model.save() 之后持续存在
+## F() 赋值在 Model.save() 之后持续存在
 
 例如：
 
@@ -1700,7 +1674,7 @@ reporter.save()python
 
 在这种情况下，stories_filed 将被更新两次。如果最初是 1，最终值将是 3。这种持久性可以通过在保存模型对象后重新加载来避免，例如，使用 refresh_from_db()。
 
-# 在过滤器中使用 F()
+## 在过滤器中使用 F()
 
 Django 中 F() 的实例充当查询中的模型字段的引用。这些引用可在查询过滤器中用于在同一模型实例中比较两个不同的字段。
 
@@ -1739,7 +1713,7 @@ F('somefield').bitand(16)
 > 更多用法，请参考[官方文档](https://docs.djangoproject.com/zh-hans/3.1/ref/models/expressions/#using-f-with-annotations)
 {.is-info}
 
-## Q() 对象
+# Q 对象
 
 像 F() 表达式一样，Q() 对象将 SQL 表达式封装在 Python 对象内部。Q() 对象最常用于通过使用 `AND(&)`、`OR(|)`和 `NOT(~)` 运算符将多个表达式链接在一起来构造复杂的数据库查询：
 
@@ -1762,5 +1736,3 @@ BookInfo.objects.filter(Q(id__gt=3)|Q(bread__gt=30))
 ```python
 BookInfo.objects.filter(~Q(id=3))
 ```
-
-
