@@ -2,7 +2,7 @@
 title: Django 视图
 description: 
 published: true
-date: 2021-03-23T13:03:24.633Z
+date: 2021-03-23T13:04:54.171Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-23T13:01:52.430Z
@@ -161,7 +161,7 @@ Django 服务器接收到客户端发送过来的请求后，会将提交上来�
 
 而这个响应，我们必须返回 HttpResponseBase 或者他的子类的对象。而 HttpResponse 则是 HttpResponseBase 用得最多的子类。那么接下来就来介绍一下 HttpResponse 及其子类。
 
-## 常用属性：
+## 常用属性
 
 - `content`：返回的内容。
 - `status_code`：返回的 HTTP 响应状态码。
@@ -319,6 +319,8 @@ def large_csv(request):
 3. 这个类没有 write 方法，如果给这个类的对象写入数据将会报错。
 
 > 注意：StreamingHttpResponse 会启动一个进程来和客户端保持长连接，所以会很消耗资源。所以如果不是特殊要求，尽量少用这种方法。
+{.is-warning}
+
 
 # 类视图
 
@@ -347,6 +349,8 @@ urlpatterns = [
 ```
 
 > View 支持以下方法 `['get','post','put','patch','delete','head','options','trace']`。
+{.is-info}
+
 
 如果用户访问了 View 中没有定义的方法。比如你的类视图只支持 get 方法，而出现了 post 方法，那么就会把这个请求转发给`http_method_not_allowed(request,*args,**kwargs)`。示例代码如下：
 
@@ -360,6 +364,8 @@ class AddBookView(View):
 ```
 
 > 不管是 get 请求还是 post 请求，都会走 `dispatch(request,*args,**kwargs)` 方法，所以如果实现这个方法，将能够对所有请求都处理到。
+{.is-info}
+
 
 ## TemplateView
 
