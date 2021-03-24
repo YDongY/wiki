@@ -2,13 +2,13 @@
 title: MySQL 锁总结
 description: 
 published: true
-date: 2021-03-24T16:07:46.561Z
+date: 2021-03-24T16:12:31.462Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T16:07:46.561Z
 ---
 
-
+![事务与锁.png](/assets/数据库/mysql/锁总结/事务与锁.png)
 
 # 锁的分类
 
