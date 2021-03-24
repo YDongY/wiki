@@ -2,7 +2,7 @@
 title: Django 认证系统
 description: 
 published: true
-date: 2021-03-24T11:05:34.726Z
+date: 2021-03-24T11:06:14.196Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T11:05:34.726Z
@@ -319,7 +319,7 @@ class Article(models.Model):
     # author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 ```
 
-# 权限和分组
+# 权限
 
 ## 登录
 
