@@ -2,7 +2,7 @@
 title: MySQL 基本命令
 description: 
 published: true
-date: 2021-03-24T15:18:44.644Z
+date: 2021-03-24T15:21:18.253Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T15:18:44.644Z
@@ -972,7 +972,737 @@ mysql -uroot -proot -e "show privileges;"
 | `show slave status \G`                   | 查看从库状态                   |
 | `SHOW RELAYLOG EVENTS `                  | 查看从库`relaylog`事件信息     |
 
+# 视图
 
+## 创建视图
+
+```sql
+-- 查询地区关联的国家
+select c.*,t.country_name from city as c ,country as t where c.country_id=t.country_id;
+
++---------+-----------+------------+--------------+
+| city_id | city_name | country_id | country_name |
++---------+-----------+------------+--------------+
+|       1 | 西安      |          1 | China        |
+|       2 | NewYork   |          2 | America      |
+|       3 | 北京      |          1 | China        |
+|       4 | 上海      |          1 | China        |
+|       5 | 武汉      |          1 | China        |
++---------+-----------+------------+--------------+
+5 rows in set (0.00 sec)
+
+-- 创建视图
+create view view_city_country as select c.*,t.country_name from city as c ,country as t where c.country_id=t.country_id;
+```
+
+## 查询视图数据
+
+```sql
+select * from view_city_country;
+```
+
+## 更新视图数据，视图建立关联的表也改变了，不建议使用
+
+```sql
+update view_city_country set xxx='xxx' where id=xxx;
+```
+
+## 修改视图
+
+```sql
+alter  view view_city_country as  select * from xxx where xxx=xxx;
+```
+
+## 查看视图
+
+```sql
+show create view view_city_country;
+
+*************************** 1. row ***************************
+                View: view_city_country
+         Create View: CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_city_country` AS select `c`.`city_id` AS `city_id`,`c`.`city_name` AS `city_name`,`c`.`country_id` AS `country_id`,`t`.`country_name` AS `country_name` from (`city` `c` join `country` `t`) where (`c`.`country_id` = `t`.`country_id`)
+character_set_client: utf8
+collation_connection: utf8_general_ci
+1 row in set (0.01 sec)
+```
+
+## 删除视图
+
+```sql
+# if exists：表示如果存在就删除
+
+drop view if exists view_city_country;
+```
+
+# 索引
+
+```sql
++---------+-----------+------------+
+| city_id | city_name | country_id |
++---------+-----------+------------+
+|       1 | 西安      |          1 |
+|       2 | NewYork   |          2 |
+|       3 | 北京      |          1 |
+|       4 | 上海      |          1 |
+|       5 | 武汉      |          1 |
++---------+-----------+------------+
+5 rows in set (0.00 sec)
+
++------------+--------------+
+| country_id | country_name |
++------------+--------------+
+|          1 | China        |
+|          2 | America      |
+|          3 | Japan        |
+|          4 | UK           |
++------------+--------------+
+4 rows in set (0.00 sec)
+```
+
+## 创建索引
+
+```sql
+create [UNIQUE|FULLTEXT|SPATIAL] index index_name [USING index_type]
+on tbl_name(index_col_name)
+
+index_name:索引名称
+tbl_name：表名
+index_col_name：字段名
+
+# 例如：为学生表的姓名字段创建索引
+create index idx_city_name on city(city_name);
+```
+
+## 创建复合索引
+
+```sql
+create index index_name on tb_name(字段1,字段2,字段3...);
+```
+
+## 查看索引
+
+```sql
+show index from students;
+show index from students\G;
+
++-------+------------+---------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table | Non_unique | Key_name      | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-------+------------+---------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| city  |          0 | PRIMARY       |            1 | city_id     | A         |           5 |     NULL | NULL   |      | BTREE      |         |               |
+| city  |          1 | idx_city_name |            1 | city_name   | A         |           5 |     NULL | NULL   |      | BTREE      |         |               |
++-------+------------+---------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+2 rows in set (0.00 sec)
+```
+
+## 删除索引
+
+```sql
+drop index idx_city_name  on city;
+```
+## ALTER添加索引
+
+```sql
+# 添加主键索引，值唯一，不能为NULL
+alter table tb_name add primary key(column_list);
+
+# 创建值唯一索引，可以为NULL且可以存在多个NULL
+alter table tb_name add unique index_name(column_list);
+
+# 普通索引
+alter table tb_name add index index_name(column_list);
+
+# 全文索引
+alter table tb_name add fulltext index_name(column_list);
+```
+
+# 存储过程和函数
+
+> 函数：有返回值的过程
+> 过程：没有返回值的函数
+{.is-info}
+
+## 修改 mysql 默认分号结尾执行语句
+
+```sql
+delimiter $
+```
+
+## 创建存储过程
+
+```sql
+# 此处的$是更改了默认分号结尾
+create procedure procedure_name()
+begin
+ -- SQL语句
+end$
+
+# 例如：
+mysql> create procedure test()
+    -> begin
+    -> select 'hello';
+    -> end$
+```
+
+## 调用存储过程
+
+```sql
+# 此处的$是更改了默认分号结尾
+call test()$
+
++-------+
+| hello |
++-------+
+| hello |
++-------+
+1 row in set (0.02 sec)
+```
+
+## 查看存储过程
+
+```sql
+# 查询db_name数据库中的所有存储过程
+# 此处的$是更改了默认分号结尾
+select name from mysql.proc where db = 'db_name'$
+
++------+
+| name |
++------+
+| test |
++------+
+1 row in set (0.02 sec)
+
+show procedure  status\G$
+
+-- 查看存储过程的定义，即当时创建使用的语法
+show create procedure test\G$
+
+*************************** 1. row ***************************
+           Procedure: test
+            sql_mode: ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+    Create Procedure: CREATE DEFINER=`root`@`localhost` PROCEDURE `test`()
+begin
+select 'hello';
+end
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+1 row in set (0.00 sec)
+```
+
+## 删除存储过程
+
+```sql
+-- 此处的 $ 是更改了默认分号结尾
+drop procedure test$
+```
+
+# 存储过程语法
+
+> 存储过程是可以编程的，意味这可以使用变量，表达式，控制结构，来完成比较复杂的功能。
+{.is-info}
+
+
+## 变量
+
+> `DECLARE variable_name [,variable_name...] datatype [DEFAULT value];`其中，datatype 为 MySQL 的数据类型，如: int, float, date,varchar(length)
+{.is-info}
+
+
+- `declare`：定义变量
+
+```sql
+mysql> create procedure pro_test()
+    -> begin
+    -> declare num int default 10;
+    -> select concat('num的值为:',num);　#　打印
+    -> end$
+
+-- 调用
+call pro_test()$
+
++-----------------------------+
+| concat('num的值为:',num)     |
++-----------------------------+
+| num的值为:10                 |
++-----------------------------+
+1 row in set (0.00 sec)
+```
+
+- `set`：设置变量
+
+```sql
+-- 方式一
+mysql> create procedure pro_test2()
+    -> begin
+    -> declare num int default 10;
+    -> set num = num + 10;
+    -> select num;
+    -> end$
+
+call pro_test2()$
+
++------+
+| num  |
++------+
+|   20 |
++------+
+1 row in set (0.00 sec)
+
+-- 方式二
+mysql> create procedure pro_test3()
+    -> begin
+    -> declare num int;
+    -> select count(*) into num from city;
+    -> select concat('city表中的记录数:',num);
+    -> end$
+
+call pro_test3()$
+
++---------------------------------------+
+| concat('city表中的记录数:',num)         |
++---------------------------------------+
+| city表中的记录数:5                      |
++---------------------------------------+
+1 row in set (0.00 sec)
+```
+
+## if 条件判断
+
+> 根据定义的身高变量，判断当前身高所属的身材。
+{.is-info}
+
+
+- 180及以上－－－－>高
+- 170-180－－－－>标准
+- 170以下－－－－>矮
+
+```sql
+create procedure pro_test4()
+begin
+    declare height int default 175;
+    declare description varchar(50) default '';
+    if height>=180 then
+        set description='高';
+    elseif height>=170 and height<180 then
+        set description='标准';
+    else
+        set description='矮';
+    end if;
+    select concat('身高：',height,'身材：',description);
+end$
+
+call pro_test4()$
+
++----------------------------------------------------+
+| concat('身高：',height,'身材：',description)       |
++----------------------------------------------------+
+| 身高：175身材：标准                                |
++----------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+## 传递参数
+
+- in：输入参数
+- out：输出参数，相当于返回值
+- inout：既可以是输入参数，又可以是输出参数
+
+
+```sql
+create procedure pro_test5(in height int)
+begin
+    declare description varchar(50) default '';
+    if height>=180 then
+        set description='高';
+    elseif height>=170 and height<180 then
+        set description='标准';
+    else
+        set description='矮';
+    end if;
+    select concat('身高：',height,'身材：',description);
+end$
+
+call pro_test5(198)$
+
++----------------------------------------------------+
+| concat('身高：',height,'身材：',description)       |
++----------------------------------------------------+
+| 身高：198身材：高                                  |
++----------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+```sql
+-- 传入参数height，返回description
+
+create procedure pro_test6(in height int,out description varchar(10))
+begin
+    if height>=180 then
+        set description='高';
+    elseif height>=170 and height<180 then
+        set description='标准';
+    else
+        set description='矮';
+    end if;
+end;
+
+call pro_test6(188,@description)$ -- 值返回到了`@description`，@表示用户会话变量，仅用于当前会话
+
+select @description$
+
++--------------+
+| @description |
++--------------+
+| 高           |
++--------------+
+1 row in set (0.00 sec)
+```
+
+## case 结构
+
+给定一个月份，计算所在的季度
+
+```sql
+create procedure pro_test7(in mon int)
+begin
+    declare result varchar(10);
+    case
+        when mon >= 1 and mon <= 3 then
+            set result = '第一季度';
+        when mon >= 4 and mon <= 6 then
+            set result = '第二季度';
+        when mon >= 7 and mon <= 9 then
+            set result = '第三季度';
+        else
+            set result = '第四季度';
+        end case;
+    select concat('月份：', mon, '季度：', result);
+end$
+
+call pro_test7(1)$
+
++--------------------------------------------+
+| concat('月份：',mon,'季度：',result)       |
++--------------------------------------------+
+| 月份：1季度：第一季度                      |
++--------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+## while 循环
+
+> 计算从 1 加到 n 的值
+{.is-info}
+
+
+```sql
+create procedure pro_test8(in n int)
+begin
+    declare sum int default 0;
+    declare num int default 1;
+    while num <= n
+        do
+            set sum = sum + num;
+            set num = num + 1;
+        end while;
+    select sum;
+end$
+
+call pro_test8(4)$
+
++------+
+| sum  |
++------+
+|   10 |
++------+
+1 row in set (0.00 sec)
+```
+
+## repeat 循环
+
+> 满足条件退出循环
+{.is-info}
+
+
+```sql
+create procedure pro_test9(in n int)
+begin
+    declare sum int default 0;
+    repeat
+        set sum = sum + n;
+        set n = n - 1;
+    until n = 0 end repeat; #　until满足退出循环
+    select sum;
+end$
+
+call pro_test9(3)$
+
++------+
+| sum  |
++------+
+|    6 |
++------+
+1 row in set (0.00 sec)
+```
+
+## loop 循环
+
+> leave 语句退出循环
+{.is-info}
+
+
+```sql
+create procedure pro_test10(in n int)
+begin
+    declare sum int default 0;
+    # c　是循环的别名
+    c:loop
+        set sum = sum + n;
+        set n = n - 1;
+
+        if n <=0 then
+            leave c;
+        end if;
+    end loop c;
+    select sum;
+end;
+
+call pro_test10(10)$
+
++------+
+| sum  |
++------+
+|   55 |
++------+
+1 row in set (0.00 sec)
+```
+
+## 游标
+
+> 用来存储查询结果集的，便于遍历结果集
+{.is-info}
+
+
+
+```sql
+create procedure pro_test11()
+begin
+    declare c_id int(11);
+    declare c_name varchar(50);
+    declare c_country_id int(11);
+    declare city_result cursor for select * from city;
+
+    open city_result;
+    #　fetch 几次打印几次，当次数操作查询总数，最后报错
+    fetch city_result into c_id,c_name,c_country_id;
+    select concat('id=', c_id, 'name=', c_name, 'country_id', c_country_id);
+
+    fetch city_result into c_id,c_name,c_country_id;
+    select concat('id=', c_id, 'name=', c_name, 'country_id', c_country_id);
+
+    close city_result;
+end;
+
+call pro_test11()$
+
++------------------------------------------------------------------+
+| concat('id=', c_id, 'name=', c_name, 'country_id', c_country_id) |
++------------------------------------------------------------------+
+| id=1name=西安country_id1                                         |
++------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
++------------------------------------------------------------------+
+| concat('id=', c_id, 'name=', c_name, 'country_id', c_country_id) |
++------------------------------------------------------------------+
+| id=2name=NewYorkcountry_id2                                      |
++------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+```
+
+- **循环版本**
+
+```sql
+create procedure pro_test12()
+begin
+    declare c_id int(11);
+    declare c_name varchar(50);
+    declare c_country_id int(11);
+
+    declare has_data int default 1;
+
+    declare city_result cursor for select * from city;
+    #　当抓取不到数据,把has_data设置为0,循环退出
+    #　此句必须卸载游标声明之后
+    declare exit handler for not found set has_data = 0;
+
+    open city_result;
+
+    repeat
+        fetch city_result into c_id,c_name,c_country_id;
+        select concat('id=', c_id, 'name=', c_name, 'country_id', c_country_id);
+    until has_data = 0 end repeat;
+
+    close city_result;
+end;
+```
+
+# 存储函数
+
+定义一个存储函数，返回满足查询条件的的总记录数
+
+```sql
+create function func_test(countryId int)
+    returns int
+begin
+    declare cnum int;
+    select count(*) into cnum from city where country_id = countryId;
+    return cnum;
+end;
+
+-- 调用
+select func_test(2)$
+
++--------------+
+| func_test(2) |
++--------------+
+|            1 |
++--------------+
+1 row in set (0.00 sec)
+```
+
+# 触发器
+
+>触发器是与表有关的数据库对象，指在insert/update/delete之前或之后触发并执行触发器中定义的SQL语句。触发器的这种特性由于应用在数据库端确保数据的完整性，日志记录，数据校验等操作。
+
+- **创建日志表**
+
+```sql
+create table city_logs
+(
+    id             int(11)     not null auto_increment,
+    operation      varchar(20) not null comment '操作类型，insert/update/delete',
+    operate_time   datetime    not null comment '操作时间',
+    operate_id     int(11)     not null comment '操作表id',
+    operate_params varchar(500) comment '操作参数',
+    primary key (id)
+) engine = innodb
+  default charset = utf8$
+```
+
+## 创建触发器
+
+通过触发器记录city表的变化日志
+
+```sql
+create trigger city_insert_trigger
+    #　插入之后触发
+    after insert
+    #　触发关联的表
+    on city
+    #　行级
+    for each row
+begin
+    insert into city_logs(id, operation, operate_time, operate_id, operate_params)
+    values (null, 'insert', now(), NEW.city_id,
+            concat('插入后数据为:(id:', NEW.city_id, ',name:', NEW.city_name, ',country_id:', NEW.country_id, ')'));
+end;
+
+insert into `city` (`city_id`, `city_name`, `country_id`) value (6, '深圳', 1)$
+
+-- 插入完成之后查询city_logs
+select * from city_logs$
+
++----+-----------+---------------------+------------+----------------------------------------------------+
+| id | operation | operate_time        | operate_id | operate_params                                     |
++----+-----------+---------------------+------------+----------------------------------------------------+
+|  1 | insert    | 2020-06-10 16:37:17 |          6 | 插入后数据为:(id:6,name:深圳,country_id:1)         |
++----+-----------+---------------------+------------+----------------------------------------------------+
+1 row in set (0.00 sec)
+```
+
+## 查看触发器
+
+```sql
+show triggers\G$
+
+*************************** 1. row ***************************
+             Trigger: city_insert_trigger
+               Event: INSERT
+               Table: city
+           Statement: begin
+    insert into city_logs(id, operation, operate_time, operate_id, operate_params)
+    values (null, 'insert', now(), NEW.city_id,
+            concat('插入后数据为:(id:', NEW.city_id, ',name:', NEW.city_name, ',country_id:', NEW.country_id, ')'));
+end
+              Timing: AFTER
+             Created: 2020-06-10 16:35:53.32
+            sql_mode: ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+             Definer: root@localhost
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+1 row in set (0.00 sec)
+```
+
+## 删除触发器
+
+```sql
+drop trigger xxxx;
+```
+
+# 事务
+
+```sql
+# 开启事务
+begin/start transaction
+
+# 提交事务
+commit
+
+# 回滚事务
+rollback
+```
+
+# 与Python交互
+
+```python
+from pymysql import *
+def main():
+    # 创建Connection链接
+    conn = connect(host="localhost", port=3306,
+                   database="jing_dong", user="root", password="root", charset="utf8")
+
+    # 获得Cursor对象
+    cs = conn.cursor()
+
+    count = cs.execute('select * from goods')
+    # 打印受影响的行数
+    print(count)
+    print(cs.fetchall())
+
+    # 增加
+    # count2 = cs.execute('insert into goods_cates(name) values ("硬盘")')
+
+    # 更新
+    # cs.execute('update goods_cates set name="机械硬盘" where name="硬盘"')
+
+    # 删除
+    # cs.execute('delete from goods_cates where name="机械硬盘"')
+    # 提交之前的操作，如果之前已经之执行过多次的execute，那么就都进行提交
+    conn.commit()
+
+    # 关闭Cursor对象
+    cs.close()
+    # 关闭Connection对象
+    conn.close()
+
+
+if __name__ == '__main__':
+    main()
+```
 
 
 
