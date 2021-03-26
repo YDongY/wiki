@@ -2,7 +2,7 @@
 title: Flask 入门
 description: 
 published: true
-date: 2021-03-26T14:36:42.209Z
+date: 2021-03-26T14:47:43.426Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T14:29:17.625Z
@@ -273,14 +273,13 @@ app = Flask(static_folder="static")
 app = Flask(static_url_path="templates")
 ```
 
-- `template_folder`：表示模板文件存放来指定的路径，默认当前项目目录的templates
+- `template_folder`：表示模板文件存放来指定的路径，默认当前项目目录的 templates
 - `static_folder`：静态文件存放文件夹，默认 static
 - `static_url_path`：主要用于改变`url`的`path`的，静态文件放在`static`下面，所以正常情况`url`是`static/filename` ，但是可以通过`static_url_path`来改变这个`url`
 
 # 7.渲染模板
 
-Flask 配置 Jinja2 模板引擎。使用 `render_template()` 方法可以渲染模板， 你只要提供模板名称和需要作为参数传递给模板的变量就行了。 下面
-是一个简单的模板渲染例子:
+Flask 配置 Jinja2 模板引擎。使用 `render_template()` 方法可以渲染模板， 你只要提供模板名称和需要作为参数传递给模板的变量就行了。 下面是一个简单的模板渲染例子:
 
 ```python
 from flask import render_template
@@ -293,8 +292,7 @@ def hello(name=None):
 
 模板示例：
 
-```html
-{% raw %}
+```jinja2
 <!doctype html>
 <title>Hello from Flask</title>
 {% if name %}
@@ -302,7 +300,6 @@ def hello(name=None):
 {% else %}
    <h1>Hello, World!</h1>
 {% endif %}
-{% endraw %}
 ```
 
 # 8. url_for 用法
@@ -319,21 +316,19 @@ def my_list(page):
 print(url_for('my_list',page=1,count=2))
 ```
 
-由于page在my_list视图路由定义过了，所以可以被解析成路径，而count没有定义，所以被解析成查询字符串。构建出来的`url：/my_list/1/?count=2`
+由于 page 在 my_list 视图路由定义过了，所以可以被解析成路径，而 count 没有定义，所以被解析成查询字符串。构建出来的`url：/my_list/1/?count=2`
 
 ## 8.2 在模板加载静态文件中使用
 
 加载静态文件使用的是`url_for`函数。然后第一个参数需要为`static`，第二个参数需要为一个关键字参数`filename='路径'`。
 
 ```jinja2
-{% raw %}
 {#引入静态文件#}
 <link rel="stylesheet" href="{{ url_for('static',filename="css/index.css") }}">
 <script type="text/javascript" src="{{ url_for('static',filename="js/index.js") }}"></script>
-{% endraw %}
 ```
 
-# 9. 自定义URL转换器
+# 9. 自定义 URL 转换器
 
 假设：一个 `url` 中，含有手机号，必须限定这个变量的字符串格式满足手机号码格式，传统的格式无法满足需求，此时就需要自定义
 
@@ -344,7 +339,7 @@ class ReConverter(BaseConverter):
     def __init__(self, url_map, regex):
         # 调用父类初始化方法
         super(ReConverter, self).__init__(url_map)
-        # 将正则表达式保存在对象的属性中，flask会去使用这个属性来进行路由的正则匹配
+        # 将正则表达式保存在对象的属性中，flask 会去使用这个属性来进行路由的正则匹配
         self.regex = regex
 
     def to_python(self, value):
@@ -356,23 +351,22 @@ class ReConverter(BaseConverter):
 
     def to_url(self, value):
         """
-        使用url_for反向生成url时，传递的参数经过该方法处理，返回的值用于生成url中的参数
+        使用 url_for 反向生成 url 时，传递的参数经过该方法处理，返回的值用于生成url中的参数
         :var
         """
         val = super().to_url(value)
         return val
 
-# 为flask添加自定义转换器
+# 为 flask 添加自定义转换器 re
 app.url_map.converters["re"] = ReConverter
 
 # 视图使用
-
 @app.route("/mobile/<re(r'1[34578]\d{9}'):mobile>")
 def mobile():
     pass
 ```
 
-我们自定义的URL转换器之后，并添加到`url_map`，之后在视图路由使用的时候局可以自定义正则表达式匹配任意格式
+我们自定义的 URL 转换器之后，并添加到`url_map`，之后在视图路由使用的时候局可以自定义正则表达式匹配任意格式
 
 # 10. 重定向
 
@@ -382,7 +376,7 @@ def mobile():
 
 - 暂时性重定向：`http`的状态码是`302`，表示页面的暂时性跳转。比如访问一个需要权限的网址，如果当前用户没有登录，应该重定向到登录页面，这种情况下，应该用暂时性重定向。
 
-**flask使用重定向**
+**flask 使用重定向**
 
 ```python
 from flask import Flask, request, url_for, redirect
@@ -400,7 +394,7 @@ def profile():
         return redirect(url_for('login'), code=302)
 ```
 
-上面定义了两个视图，一个是登录页面，另一个是模拟认证页面，也就是当我们访问直接`/profile/`，由于视图判断没有携带 name 查询字符串，直接运行了`redirect(url_for('login'), code=302)`，先通过`url_for`解析出 login 视图的路由，然后跳转的 login 页面，而且状态码设置为 302。实际场景最多的就是购物车、个人中心访问，都会自动跳转的等于页面。
+上面定义了两个视图，一个是登录页面，另一个是模拟认证页面，也就是当我们直接访问`/profile/`，由于视图判断没有携带 name 查询字符串，所以运行了`redirect(url_for('login'), code=302)`，先通过`url_for`解析出 login 视图的路由，然后跳转的 login 页面，而且状态码设置为 302。实际场景最多的就是购物车、个人中心访问，都会自动跳转的等于页面。
 
 # 11. 响应
 
@@ -413,7 +407,7 @@ from werkzeug.wrappers import Response
 
 @app.route("/")
 def test():
-    # 下面三种返回的方式都是Response()对象
+    # 下面三种返回的方式都是 Response() 对象
     # return "hello world"
     # return Response(response="hello world", status=200,mimetype="text/html")
     return "hello world", 200 # 数据、状态码
@@ -424,7 +418,7 @@ def test():
 1. 继承自`Response`类。
 2. 实现方法`force_type(cls,rv,environ=None)`。
 3. 指定`app.response_class`为你自定义的`Response`对象。
-4. 如果视图函数返回的数据，不是字符串，也不是元组，也不是Response对象，那么就会将返回值传给`force_type`，然后再将`force_type`的返回值返回给前端。
+4. 如果视图函数返回的数据，不是字符串，也不是元组，也不是 Response 对象，那么就会将返回值传给`force_type`，然后再将`force_type`的返回值返回给前端。
 
 ```python
 from werkzeug.wrappers import Response
@@ -443,6 +437,6 @@ def test2():
     return [1,2,3]
 ```
 
-test2 视图由于返回的结果不符合传统要求，此时就会调用我们自定义的`Response`对象,把返回值传给`force_type`方法的 response ，处理之后在调用父类方法返回
+test2 视图由于返回的结果不符合传统要求，此时就会调用我们自定义的`Response`对象，把返回值传给`force_type`方法的 response ，处理之后在调用父类方法返回
 
 
