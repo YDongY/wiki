@@ -2,7 +2,7 @@
 title: Flask 入门
 description: 
 published: true
-date: 2021-03-24T14:29:59.835Z
+date: 2021-03-26T14:36:42.209Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T14:29:17.625Z
@@ -107,7 +107,7 @@ $ export FLASK_ENV=development
 $ flask run
 ```
 
-- 在生产环境的下开启调试模式：
+- 在开发环境的下开启调试模式：
 
 > **开启 DEBUG 模式之后可以通过 PIN 码在网页进行错误调试。**
 {.is-info}
@@ -158,7 +158,7 @@ app.config.from_pyfile(os.environ['DEBUG'],silent = False )
   #===============1. config.py================
   DEBUG = True
 
-  # app使用配置文件
+  # app 直接使用配置文件
   import config
   app.config.from_object(config)
   app.config.from_object('config')
@@ -167,13 +167,13 @@ app.config.from_pyfile(os.environ['DEBUG'],silent = False )
   class Config(object):
       DEBUG = True
 
-  # app使用配置文件
+  # app 使用配置文件中的类
   import config
   app.config.from_object(config.Config)
   app.config.from_object('config.Config')
   ```
 
-- **Json文件导入(from_json)**
+- **Json 文件导入(from_json)**
 
 从 JSON 文件中加载配置，第一个参数表示文件路径，第二个参数`silent=False`表示当文件不存在时报错，默认 False
 
@@ -187,7 +187,7 @@ app.config.from_pyfile(os.environ['DEBUG'],silent = False )
 app.config.from_json('config.json', silent=False)
 ```
 
-- **Python文件导入(from_pyfile)**
+- **Python 文件导入(from_pyfile)**
 
 从 Python 文件中加载配置，第一个参数表示文件路径，第二个参数 `silent=False` 表示当文件不存在时报错，默认 False
 
@@ -201,19 +201,19 @@ app.config.from_file('config.py',silent=False)
 # 4. URL 与端点
 
 ```python
-@app.route("/article/<string:aid>")  #　字符串，默认类型。接受不包含斜杠的文本
-@app.route("/article/<float:aid>")  #　正浮点数
-@app.route("/article/<path:aid>")  # 指定类型url aid可以接受:/aa/bbb/aaa/xxx
-@app.route("/article/<uuid:aid>")  #uuid类型
+@app.route("/article/<string:aid>") # 字符串，默认类型。接受不包含斜杠的文本
+@app.route("/article/<float:aid>")  # 正浮点数
+@app.route("/article/<path:aid>")   # 字符串，包括斜杠。可以接受:/aa/bbb/aaa/xxx
+@app.route("/article/<uuid:aid>")   # uuid 类型
 @app.route("/article/<any:aid>")
-@app.route("/article/<int:aid>")  # 接受正整数
+@app.route("/article/<int:aid>")    # 接受正整数
 ```
 
 参数的类型都是见名知意，主要来讲讲 `path` 和 `any` 表示什么意思：
 
 - `path`
 
-如下定义的两个视图，一个指定类型为 `string`，一个为 `path` ，查看怕们的区别：
+如下定义的两个视图，一个指定类型为 `string`，一个为 `path` ，查看它们的区别：
 
 ```python
 @app.route("/article/<string:aid>")
