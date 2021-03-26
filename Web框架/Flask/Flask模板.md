@@ -2,7 +2,7 @@
 title: Flask 模板
 description: 
 published: true
-date: 2021-03-24T14:38:42.484Z
+date: 2021-03-26T14:56:42.548Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T14:36:48.158Z
@@ -129,8 +129,8 @@ def my_filter():
 | `format(value,*arags,**kwargs)`              | 格式化字符串<br>`{{ "%s" - "%s"|format('Hello?',"Foo!")}}`<br>输出：Helloo? - Foo! |
 | `last(value)`                                | 返回一个序列的最后一个元素。示例：`names|last`                                                          |
 | `length(value)`                              | 返回一个序列或者字典的长度。示例：`names|length`                                                        |
-| `join(value,d=u'')`                          | 将一个序列用d这个参数的值拼接成字符串。                                                                 |
-| `safe(value)`                                | 如果开启了全局转义，那么safe过滤器会将变量关掉转义。示例：`content_html|safe`。                         |
+| `join(value,d=u'')`                          | 将一个序列用 `d` 这个参数的值拼接成字符串。                                                                 |
+| `safe(value)`                                | 如果开启了全局转义，那么 `safe`过滤器会将变量关掉转义。示例：`content_html|safe`。                         |
 | `int(value)`                                 | 将值转换为 int 类型。                                                                                   |
 | `float(value)`                               | 将值转换为 float 类型。                                                                                 |
 | `lower(value)`                               | 将字符串转换为小写。                                                                                    |
@@ -147,7 +147,7 @@ def my_filter():
 过滤器本质上就是一个函数。如果在模版中调用这个过滤器，那么就会将这个变量的值作为第一个参数传给过滤器这个函数，然后函数的返回值会作为这个过滤器的返回值。需要使用到一个装饰器：`@app.template_filter('cut')`
 
 ```python
-# 自定义过滤器，把hello替换为空字符串
+# 自定义过滤器，把 hello 替换为空字符串
 @app.template_filter('cut')
 def cut(value):
     value = value.replace("hello",'')
@@ -166,7 +166,7 @@ def cut(value):
 {% endif %}
 ```
 
-判断语句和python中的判断语句一致，也可以使用`>，<，<=，>=，==，!=`来进行判断，也可以通过`and，or，not，()`来进行逻辑合并操作。
+判断语句和 python 中的判断语句一致，也可以使用`>，<，<=，>=，==，!=`来进行判断，也可以通过`and，or，not，()`来进行逻辑合并操作。
 
 # 5. for 循环
 
@@ -176,7 +176,7 @@ def cut(value):
 {% endfor %}
 ```
 
-循环语句和python中同样类似，采用`in`来遍历所有的序列以及迭代器，但是注意`jinja2`中的循环没有`break`和`continue`。如果你启用了`jinja2.ext.loopcontrols`扩展的话，你还可以在循环中使用`{% break %}`和`{% continue %}`来控制循环执行。
+循环语句和 python 中同样类似，采用`in`来遍历所有的序列以及迭代器，但是注意`jinja2`中的循环没有`break`和`continue`。如果你启用了`jinja2.ext.loopcontrols`扩展的话，你还可以在循环中使用`{% break %}`和`{% continue %}`来控制循环执行。
 
 Jinja2 的循环内置变量主要有以下几个：
 
@@ -189,11 +189,11 @@ Jinja2 的循环内置变量主要有以下几个：
 |   `loop.first`   |                是否为循环的第一个元素                 |
 |   `loop.last`    |               是否为循环的最后一个元素                |
 |  `loop.length`   |                 循环序列中元素的个数                  |
-|   `loop.cycle`   | 在给定的序列中轮循，如上例在”odd”和”even”两个值间轮循 |
+|   `loop.cycle`   |              在给定的序列中两个值间轮循              |
 |   `loop.depth`   |           当前循环在递归中的层级（从1开始）           |
 |  `loop.depth0`   |           当前循环在递归中的层级（从0开始）           |
 
-循环中使用if
+循环中使用 `if`
 
 ```jinja2
 {% for y in range(1,10) if y <= 5 %}
@@ -203,7 +203,7 @@ Jinja2 的循环内置变量主要有以下几个：
 
 # 6. 宏
 
-模板中的宏跟python中的函数类似，可以传递参数，但是不能有返回值，可以将一些经常用到的代码片段放到宏中，然后把一些不固定的值抽取出来当成一个变量。
+模板中的宏跟 python 中的函数类似，可以传递参数，但是不能有返回值，可以将一些经常用到的代码片段放到宏中，然后把一些不固定的值抽取出来当成一个变量。
 
 ## 6.1 定义宏
 
@@ -223,7 +223,7 @@ Jinja2 的循环内置变量主要有以下几个：
 {{ input(value="提交",type="submit") }}
 ```
 
-上面代码定义宏就相当于创建一个`input`函数，参数包括:`name,value,type`，使用宏就相当于调用函数
+上面代码定义宏就相当于创建一个`input`函数，参数包括：`name,value,type`，使用宏就相当于调用函数
 
 - 导入宏，通过宏调用
 
@@ -277,7 +277,7 @@ Jinja2 的循环内置变量主要有以下几个：
 <p>用户名：{{ username }}</p>
 ```
 
-一旦定义了这个变量，那么在后面的代码中，都可以使用这个变量，就类似于Python的变量定义是一样的。
+一旦定义了这个变量，那么在后面的代码中，都可以使用这个变量，就类似于 Python 的变量定义是一样的。
 
 `with`语句定义的变量，只能在`with`语句块中使用，超过了这个代码块，就不能再使用了。示例代码如下：
 
@@ -300,7 +300,7 @@ Jinja2 的循环内置变量主要有以下几个：
 
 # 9. 模板继承
 
-模版继承可以把一些公用的代码单独抽取出来放到一个父模板中。以后子模板直接继承就可以使用了。提高代码的复用性
+模版继承可以把一些公用的代码单独抽取出来放到一个父模板中。以后子模板直接继承就可以使用了，提高代码的复用性。
 
 使用`extends`语句，来指明继承的父模板。父模板的路径，也是相对于`templates`文件夹下的绝对路径
 
@@ -310,7 +310,7 @@ Jinja2 的循环内置变量主要有以下几个：
 
 如下定义一个父模板`templates/posts/base.html`
 
-```jinja
+```jinja2
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -351,9 +351,3 @@ Jinja2 的循环内置变量主要有以下几个：
     我是子模板block的代码
 {% endblock %}
 ```
-
-# 参考
-
-- [http://www.bjhee.com/flask-ad3.html](http://www.bjhee.com/flask-ad3.html)
-- [https://dormousehole.readthedocs.io/en/latest/quickstart.html#](https://dormousehole.readthedocs.io/en/latest/quickstart.html#)
-
