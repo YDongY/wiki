@@ -2,7 +2,7 @@
 title: Flask 视图
 description: 
 published: true
-date: 2021-03-24T14:41:56.786Z
+date: 2021-03-26T15:02:16.825Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T14:41:34.184Z
@@ -19,7 +19,7 @@ def my_list():
 app.add_url_rule('/list/', endpoint='list', view_func=my_list)
 ```
 
-代码发现，我们没有采用传统装饰器的方式定义路由，而是调用了`add_url_rule`，其中`endpoint`就是端点，如果没有填写`endpoint`，那么默认会使用`view_func`的名字，它主要还是用做`url_for`反向获取 ur l使用。
+代码发现，我们没有采用传统装饰器的方式定义路由，而是调用了`add_url_rule`，其中`endpoint`就是端点，如果没有填写`endpoint`，那么默认会使用`view_func`的名字，它主要还是用做`url_for`反向获取 url 使用。
 
 > `app.route(rule,**options)`装饰器底层，底层也是使用`add_url_rule`来实现 url 与视图函数映射的。
 {.is-info}
@@ -45,8 +45,8 @@ class ListView(views.View):
 app.add_url_rule('/list/', endpoint='ListView', view_func=ListView.as_view('list'))
 ```
 
-1. `ListView.as_view('list')`里面必须传个参数`name`，给 view_func 起个别名，实际上就是 dispatch_request 函数
-2. `endpoint`可以不指定，则默认使用 view_func 的别名（ name 参数的值），主要用于 url_for 反转获取 url 使用
+1. `ListView.as_view('list')`里面必须传个参数`name`，给 view_func 起个别名，实际上就是 `dispatch_request` 函数
+2. `endpoint`可以不指定，则默认使用 `view_func` 的别名（ name 参数的值），主要用于 `url_for` 反转获取 url 使用
 
 ## 2. 2 请求类视图
 
@@ -104,7 +104,9 @@ class ProfileView(views.View):
         return "profile"
 ```
 
-通过观察可以发现，传统的视图函数的方式是通过装饰器进行装饰，达到登陆认证的效果，而且自定义的装饰器需要放在路由装饰器的下面。而想要在类视图中使用请求登录验证的效果，需要重新定义父类的`decorators`属性，有点像 Django 中的权限认证的定义。
+通过观察可以发现，传统的视图函数的方式是通过装饰器进行装饰，达到登陆认证的效果，而且自定义的装饰器需要放在路由装饰器的下面。
+
+而想要在类视图中使用请求登录验证的效果，需要重新定义父类的`decorators`属性
 
 # 4. 蓝图
 
@@ -138,9 +140,9 @@ def user_settings():
 - `@user_bp.route("/user-info/")`：使用蓝图定义路由，其实就是相当于单独的`app`，所以是`@user_bp`而不是`@app`
 - `url_for("user.user_info")`：通过`url_for`翻转获取`url`地址，但是在蓝图中使用，需要使用 `蓝图名.xxx`，不能单独写函数名或`endpoint`的值
 
-- 蓝图`url`前缀
+蓝图`url`前缀
 
-添加前缀就表示这个蓝图所有的视图函数拥有统一的前缀，开发中对于接口`url`的定义也是按照模块划分，类似于`Django/settings`下面定义的`urls`,给每个应用统一一个前缀，前缀定义使用`url_prefix`参数指定
+添加前缀就表示这个蓝图所有的视图函数拥有统一的前缀，开发中对于接口`url`的定义也是按照模块划分，类似于`Django/settings`下面定义的`urls`，给每个应用统一一个前缀，前缀定义使用`url_prefix`参数指定
 
 ```python
 user_bp = Blueprint('user', __name__, url_prefix="/user")
