@@ -2,7 +2,7 @@
 title: Flask 高级应用
 description: 
 published: true
-date: 2021-03-24T14:49:34.877Z
+date: 2021-03-26T15:19:50.633Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-24T14:49:34.877Z
@@ -16,7 +16,7 @@ dateCreated: 2021-03-24T14:49:34.877Z
 
 文件上传的基本原理实际上很简单，基本上是：
 
-1. 一个带有 `enctype=multipart/form-data` 的标记，标记中含有一个 。
+1. 一个带有 `enctype=multipart/form-data` 的标记。
 2. 应用通过请求对象的 `files` 字典来访问文件。
 3. 使用文件的 `save()`方法把文件 永久地保存在文件系统中。
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
 ## 2.1 Cookies
 
-要访问 cookies ，可以使用 `cookies` 属性。可以使用响应 对象 的 `set_cookie` 方法来设置 cookies 。请求对象的 `cookies` 属性是一个包含了客户端传输的所有 cookies 的字典。
+要访问 cookies ，可以使用 `cookies` 属性。可以使用响应对象的 `set_cookie` 方法来设置 cookies 。请求对象的 `cookies` 属性是一个包含了客户端传输的所有 cookies 的字典。
 
 - 读取 cookies
 
@@ -236,7 +236,7 @@ session.permanent=True
 
 ## 3.1 创建信号
 
-定义信号需要使用到blinker这个包的 [`Namespace`](http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Namespace) 类来创建一个命名空间。
+定义信号需要使用到 blinker 这个包的 [`Namespace`](http://discorporate.us/projects/Blinker/docs/1.1/api.html#blinker.base.Namespace) 类来创建一个命名空间。
 
 ```python
 from blinker import Namespace
@@ -262,7 +262,7 @@ login_signal.send()
 
 ## 3.4 信号使用场景
 
-- 定义一个登录的信号，以后用户登录进来
+- 定义一个登录的信号，记录用户登录
 - 发送一个登录信号，然后能够监听这个信号
 - 在监听到这个信号以后，就记录当前这个用户登录的信息
 - 用信号的方式，记录用户的登录信息即登录日志
@@ -288,7 +288,7 @@ def login_log(sender):
     with open('login_log.txt', 'a')as f:
         f.write(log_data + '\n')
 
-# 发送信号
+# 订阅信号
 login_signal.connect(login_log)
 ```
 
@@ -333,11 +333,11 @@ if __name__ == '__main__':
 
 `before_first_request`：`Flask`项目启动后，第一次请求会执行，以后就不再执行。
 
-`before_request`：请求已经到达了`Flask`，但是还没有进入到具体的视图函数之前调用。**如果返回为非假的值，则会直接返回响应，结束请求流程，默认可以不传，表示返回None。如果被装饰多个函数，按照函数定义顺序执行**
+`before_request`：请求已经到达了`Flask`，但是还没有进入到具体的视图函数之前调用。如果返回为非假的值，则会直接返回响应，结束请求流程，默认可以不传，表示返回 None。如果被装饰多个函数，按照函数定义顺序执行
 
-`after_request`：视图函数执行完成时调用，**被装饰的函数需要接受一个参数，表示`response`，该函数必须一个`response`的对象，如果修改了`response`，则直接返回修改后的结果。作用就是对视图函数处理完成的响应做进一步修改然后返回。如果被装饰多个函数，按照函数定义相反的顺序执行**
+`after_request`：视图函数执行完成时调用，被装饰的函数需要接受一个参数，表示`response`，该函数必须一个`response`的对象，如果修改了`response`，则直接返回修改后的结果。作用就是对视图函数处理完成的响应做进一步修改然后返回。如果被装饰多个函数，按照函数定义相反的顺序执行
 
-`teardown_appcontext`：在请求结束之前调用，**被装饰的函数需要接受一个参数，表示异常信息**
+`teardown_appcontext`：在请求结束之前调用，被装饰的函数需要接受一个参数，表示异常信息
 
 测试代码如下：
 
@@ -630,8 +630,3 @@ def render_large_template():
     file = open("large.csv")
     return Response(stream_template('the_template.html', csv=file.readlines()))
 ```
-
-# 参考
-
-> http://www.bjhee.com/flask-ad5.html
-> http://docs.jinkan.org/docs/flask/
