@@ -2,7 +2,7 @@
 title: 19. Socket
 description: 
 published: true
-date: 2021-03-14T03:10:02.260Z
+date: 2021-03-27T10:01:05.636Z
 tags: 
 editor: markdown
 dateCreated: 2021-03-13T04:39:49.209Z
@@ -10,7 +10,7 @@ dateCreated: 2021-03-13T04:39:49.209Z
 
 # Python 中的 Socket
 
-下面将使用的主要模块就是 socket 模块，在这个模块中可以找到 socket()函数，该函数用于创建套接字对象。套接字有自己的方法集，这些方法可以实现基于套接字的网络通信，分别创建 TCP 的客户端，服务端和 UDP 协议客户端，服务端。
+下面将使用的主要模块就是 socket 模块，在这个模块中可以找到 socket() 函数，该函数用于创建套接字对象。套接字有自己的方法集，这些方法可以实现基于套接字的网络通信，分别创建 TCP 的客户端，服务端和 UDP 协议客户端，服务端。
 
 ## 创建 TCP 服务器
 
@@ -226,7 +226,7 @@ while True:
 
 # 基于 Socket 的 Web 服务器
 
-我们了解到了 HTTP 报文的格式，但是我们需要关注的是服务器，因为Web 应用同样遵循客户端/服务器架构，而此时的客户端就是是浏览器， 服务器端就是 Web 服务器。也就是说我们不太需要去编写客户端，因为我们通过浏览器去访问我们的服务器，浏览器自然会遵循 HTTP 请求报文的格式，而我们的服务器想要有回应就必须遵循 HTTP 响应报文的格式。
+我们了解到了 HTTP 报文的格式，但是我们需要关注的是服务器，因为 Web 应用同样遵循客户端/服务器架构，而此时的客户端就是是浏览器， 服务器端就是 Web 服务器。也就是说我们不太需要去编写客户端，因为我们通过浏览器去访问我们的服务器，浏览器自然会遵循 HTTP 请求报文的格式，而我们的服务器想要有回应就必须遵循 HTTP 响应报文的格式。
 
 ## 纯文本响应服务器
 
@@ -342,10 +342,10 @@ def simple_wsgi_app(environ, start_response):
 
 上面的 simple_wsgi_app 函数就是符合 WSGI 标准的一个 HTTP 处理函数，它接收两个参数，返回的内容必须是可迭代的：
 
-- environ：一个包含所有HTTP请求信息的字典对象；
-- start_response：一个发送HTTP响应的函数，响应必须含有 HTTP 返回码，以及 HTTP 响应头。
+- `environ`：一个包含所有HTTP请求信息的字典对象；
+- `start_response`：一个发送HTTP响应的函数，响应必须含有 HTTP 返回码，以及 HTTP 响应头。
 
-整个 simple_wsgi_app() 函数本身没有涉及到任何解析 HTTP 的部分，也就是说，把底层 web 服务器解析部分和应用程序逻辑部分进行了分离，这样开发者就可以专心做一个领域了。所以simple_wsgi_app() 函数必须由 WSGI 服务器来调用。
+整个 `simple_wsgi_app()` 函数本身没有涉及到任何解析 HTTP 的部分，也就是说，把底层 web 服务器解析部分和应用程序逻辑部分进行了分离，这样开发者就可以专心做一个领域了。所以`simple_wsgi_app()` 函数必须由 WSGI 服务器来调用。
 
 - 应用程序
 
@@ -365,8 +365,11 @@ def application(environ, start_response):
     """
     status = '200 OK'
     headers = [('Content-type', 'text/plain;charset=utf-8')]
+    # 调用服务器函数
     start_response(status, headers)
     print(environ)
+    
+    # 模拟路由
     func = urlpatterns.get(environ.get("URL"))
     if not func:
         return [""]
