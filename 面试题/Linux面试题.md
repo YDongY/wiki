@@ -2,9 +2,9 @@
 title: Linux 面试题
 description: 
 published: true
-date: 2021-03-24T11:36:34.873Z
-tags: linux面试题
-editor: markdown
+date: 2021-03-24T11:36:37.225Z
+tags: 
+editor: undefined
 dateCreated: 2021-03-05T13:52:53.021Z
 ---
 
